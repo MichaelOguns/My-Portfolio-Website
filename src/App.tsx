@@ -241,39 +241,61 @@ function App() {
       vy: number;
       size: number;
     }[] = [];
-    const particleCount = 50;
+    const particleCount = 60;
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         z: Math.random() * 1000,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 1,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2 + 1.5,
       });
     }
 
     const animate = () => {
-      ctx.fillStyle = "rgba(10, 10, 20, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Draw particles
       particles.forEach((particle) => {
         particle.x += particle.vx;
         particle.y += particle.vy;
 
+        // Bounce off edges
         if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
 
         const scale = particle.z / 1000;
         const size = particle.size * scale;
-        const opacity = scale * 0.5;
+        const opacity = 0.7 * scale + 0.3;
 
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(100, 150, 255, ${opacity})`;
+        ctx.shadowColor = "rgba(100,150,255,0.5)";
+        ctx.shadowBlur = 8;
         ctx.fill();
+        ctx.shadowBlur = 0;
       });
+
+      // Draw connecting lines
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(100, 150, 255, ${1 - dist / 120})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
 
       requestAnimationFrame(animate);
     };
@@ -353,7 +375,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              JD
+              MO
             </div>
             <div className="hidden md:flex gap-8">
               {["About", "Skills", "Projects", "Contact"].map((item) => (
