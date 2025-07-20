@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ChevronDown, Github, ExternalLink, Mail, Linkedin, Code, Briefcase, GraduationCap, Star, Download, MapPin, Calendar, Award, Users, Zap, Target } from 'lucide-react';
+import { ChevronDown, Github, ExternalLink, Mail, Linkedin, Code, Briefcase, GraduationCap, Star, Download, MapPin, Calendar, Award, Users, Zap, Target, Layers, Globe, Cpu, Database, Cloud, Terminal } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -15,7 +15,6 @@ interface Project {
   impact?: string;
   duration?: string;
   teamSize?: number;
-  colors: string[]; // Add color theme for each project
 }
 
 const projects: Project[] = [
@@ -26,37 +25,34 @@ const projects: Project[] = [
     tech: ['React', 'Node.js', 'TensorFlow.js', 'PostgreSQL', 'Docker', 'AWS', 'Socket.io'],
     github: '#',
     demo: '#',
-    image: 'https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800',
     year: '2024',
     category: 'project',
     featured: true,
     impact: '40% productivity increase for beta users',
     duration: '6 months',
     teamSize: 4,
-    colors: ['#1e40af', '#3b82f6', '#60a5fa'] // Blue theme for AI/Tech
   },
   {
     id: '2',
     title: 'Computer Science Graduation',
     description: 'Bachelor of Science in Computer Science with Magna Cum Laude honors. Specialized in Artificial Intelligence, Software Engineering, and Distributed Systems. Completed advanced coursework in machine learning, algorithms, and system design.',
     tech: ['Machine Learning', 'Algorithms', 'System Design', 'Software Engineering', 'Database Systems', 'Computer Networks'],
-    image: 'https://images.pexels.com/photos/267885/pexels-photo-267885.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800',
     year: '2024',
     category: 'education',
     impact: 'GPA: 3.9/4.0',
     duration: '4 years',
-    colors: ['#ea580c', '#f97316', '#fb923c'] // Orange theme for education
   },
   {
     id: '3',
     title: 'Dean\'s List Achievement',
     description: 'Recognized for academic excellence with consistent placement on the Dean\'s List for outstanding scholastic achievement. Maintained top 5% class ranking throughout final two years.',
     tech: ['Academic Excellence', 'Leadership', 'Research'],
-    image: 'https://images.pexels.com/photos/5905709/pexels-photo-5905709.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800',
     year: '2024',
     category: 'achievement',
     impact: 'Top 5% of graduating class',
-    colors: ['#eab308', '#f59e0b', '#fbbf24'] // Gold theme for achievement
   },
   {
     id: '4',
@@ -65,102 +61,62 @@ const projects: Project[] = [
     tech: ['React', 'Socket.io', 'Redis', 'WebRTC', 'AWS', 'Kubernetes', 'MongoDB'],
     github: '#',
     demo: '#',
-    image: 'https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800',
     year: '2023',
     category: 'project',
     featured: true,
     impact: '10,000+ concurrent users supported',
     duration: '8 months',
     teamSize: 6,
-    colors: ['#7c3aed', '#8b5cf6', '#a78bfa'] // Purple theme for collaboration
   },
   {
     id: '5',
     title: 'Senior Software Engineer Intern',
     description: 'Led development of microservices architecture for e-commerce platform at TechCorp. Optimized API performance by 60%, implemented CI/CD pipelines, and mentored junior developers. Contributed to cloud migration strategy.',
     tech: ['Java', 'Spring Boot', 'Kubernetes', 'AWS', 'MongoDB', 'Jenkins', 'Docker'],
-    image: 'https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    image: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800',
     year: '2023',
     category: 'experience',
     impact: '60% API performance improvement',
     duration: '6 months',
     teamSize: 12,
-    colors: ['#059669', '#10b981', '#34d399'] // Green theme for work experience
   },
-  {
-    id: '6',
-    title: 'Blockchain Voting System',
-    description: 'Secure, transparent, and immutable voting platform leveraging blockchain technology. Features smart contracts for vote validation, IPFS for decentralized storage, and real-time result visualization with zero downtime guarantee.',
-    tech: ['Solidity', 'React', 'Web3.js', 'IPFS', 'Ethereum', 'Truffle', 'MetaMask'],
-    github: '#',
-    demo: '#',
-    image: 'https://images.pexels.com/photos/8369648/pexels-photo-8369648.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    year: '2023',
-    category: 'project',
-    impact: '100% vote integrity guaranteed',
-    duration: '4 months',
-    teamSize: 3,
-    colors: ['#dc2626', '#ef4444', '#f87171'] // Red theme for blockchain/security
-  },
-  {
-    id: '7',
-    title: 'Machine Learning Research Assistant',
-    description: 'Conducted cutting-edge research on deep learning applications in medical imaging. Developed novel CNN architectures for automated diagnosis, published research paper, and presented findings at international conference.',
-    tech: ['Python', 'PyTorch', 'OpenCV', 'NumPy', 'Jupyter', 'CUDA', 'TensorBoard'],
-    image: 'https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    year: '2022',
-    category: 'experience',
-    impact: 'Published research paper',
-    duration: '1 year',
-    teamSize: 5,
-    colors: ['#0d9488', '#14b8a6', '#5eead4'] // Teal theme for research
-  },
-  {
-    id: '8',
-    title: 'E-commerce Analytics Dashboard',
-    description: 'Comprehensive business intelligence platform for online retailers. Features real-time sales tracking, customer behavior analysis, predictive analytics, and automated reporting with interactive data visualizations.',
-    tech: ['Vue.js', 'D3.js', 'Python', 'Flask', 'MySQL', 'Apache Kafka', 'Elasticsearch'],
-    github: '#',
-    demo: '#',
-    image: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    year: '2022',
-    category: 'project',
-    impact: '25% increase in sales insights',
-    duration: '5 months',
-    teamSize: 4,
-    colors: ['#be185d', '#db2777', '#f472b6'] // Pink theme for analytics
-  }
 ];
 
 const skills = [
-  { name: 'React/TypeScript', level: 95 },
-  { name: 'Node.js/Python', level: 90 },
-  { name: 'Machine Learning', level: 85 },
-  { name: 'Cloud Architecture', level: 88 },
-  { name: 'Database Design', level: 92 },
-  { name: 'DevOps/CI/CD', level: 80 }
+  { name: 'React/TypeScript', level: 95, icon: Code },
+  { name: 'Node.js/Python', level: 90, icon: Terminal },
+  { name: 'Machine Learning', level: 85, icon: Cpu },
+  { name: 'Cloud Architecture', level: 88, icon: Cloud },
+  { name: 'Database Design', level: 92, icon: Database },
+  { name: 'DevOps/CI/CD', level: 80, icon: Layers },
 ];
 
 function App() {
   const [scrollY, setScrollY] = useState(0);
   const [visibleItems, setVisibleItems] = useState(new Set());
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
+  const [activeSection, setActiveSection] = useState('hero');
   const heroRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    
-    // Enhanced scroll behavior for landing page slide-behind effect
-    const handleScrollBehavior = () => {
-      const heroSection = heroRef.current;
-      if (heroSection) {
-        const heroHeight = heroSection.offsetHeight;
-        const scrollProgress = Math.min(window.scrollY / heroHeight, 1);
-        
-        // Apply transform to create slide-behind effect
-        heroSection.style.transform = `translateY(${scrollProgress * -50}px) scale(${1 - scrollProgress * 0.1})`;
-        heroSection.style.opacity = `${1 - scrollProgress * 0.3}`;
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+      
+      // Determine active section
+      const sections = ['hero', 'about', 'skills', 'timeline', 'contact'];
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+      
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
+          }
+        }
       }
     };
     
@@ -169,12 +125,10 @@ function App() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('scroll', handleScrollBehavior);
     window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('scroll', handleScrollBehavior);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
@@ -185,17 +139,10 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setVisibleItems(prev => new Set([...prev, entry.target.id]));
-            
-            // Update current project for background changes
-            const projectId = entry.target.id.replace('project-', '');
-            const projectIndex = projects.findIndex(p => p.id === projectId);
-            if (projectIndex !== -1) {
-              setCurrentProjectIndex(projectIndex);
-            }
           }
         });
       },
-      { threshold: 0.2, rootMargin: '-50px' }
+      { threshold: 0.1, rootMargin: '-50px' }
     );
 
     document.querySelectorAll('[data-animate]').forEach((el) => {
@@ -203,6 +150,66 @@ function App() {
     });
 
     return () => observer.disconnect();
+  }, []);
+
+  // Animated background canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles: { x: number; y: number; z: number; vx: number; vy: number; size: number }[] = [];
+    const particleCount = 50;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        z: Math.random() * 1000,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2 + 1,
+      });
+    }
+
+    const animate = () => {
+      ctx.fillStyle = 'rgba(10, 10, 20, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((particle) => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+        const scale = particle.z / 1000;
+        const size = particle.size * scale;
+        const opacity = scale * 0.5;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(100, 150, 255, ${opacity})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const getCategoryIcon = (category: string) => {
@@ -217,646 +224,371 @@ function App() {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'project': return 'from-blue-500 via-cyan-500 to-purple-600';
-      case 'experience': return 'from-emerald-500 via-teal-500 to-green-600';
-      case 'education': return 'from-orange-500 via-red-500 to-pink-600';
-      case 'achievement': return 'from-yellow-500 via-amber-500 to-orange-600';
-      default: return 'from-blue-500 via-cyan-500 to-purple-600';
+      case 'project': return 'from-blue-500 to-cyan-500';
+      case 'experience': return 'from-emerald-500 to-teal-500';
+      case 'education': return 'from-orange-500 to-red-500';
+      case 'achievement': return 'from-yellow-500 to-amber-500';
+      default: return 'from-blue-500 to-cyan-500';
     }
   };
 
-  const parallaxOffset = scrollY * 0.5;
-  const mouseParallaxX = (mousePosition.x - window.innerWidth / 2) * 0.01;
-  const mouseParallaxY = (mousePosition.y - window.innerHeight / 2) * 0.01;
-
-  // Calculate gradient position based on scroll and current project
-  const getGradientPosition = () => {
-    // Calculate progress through the timeline (0 to 1)
-    const timelineSection = document.getElementById('timeline');
-    if (!timelineSection) return 0;
-    
-    const timelineTop = timelineSection.offsetTop;
-    const timelineHeight = timelineSection.offsetHeight;
-    const scrollProgress = Math.max(0, Math.min(1, (scrollY - timelineTop + window.innerHeight) / (timelineHeight + window.innerHeight)));
-    
-    // Combine with current project index for smoother transitions
-    const projectProgress = currentProjectIndex / Math.max(1, projects.length - 1);
-    
-    // Blend scroll position with project progress for smooth transitions
-    return (scrollProgress * 0.7) + (projectProgress * 0.3);
-  };
-
-  // Get current project's color theme
-  const getCurrentProjectColors = () => {
-    const currentProject = projects[currentProjectIndex];
-    return currentProject ? currentProject.colors : ['#1e40af', '#3b82f6', '#60a5fa']; // Default blue
-  };
-
-  // Create dynamic gradient based on current project
-  const getDynamicGradient = () => {
-    const colors = getCurrentProjectColors();
-    const position = getGradientPosition();
-    
-    // Interpolate between projects for smooth transitions
-    let nextColors = colors;
-    if (currentProjectIndex < projects.length - 1) {
-      nextColors = projects[currentProjectIndex + 1].colors;
-    }
-    
-    return `linear-gradient(135deg, 
-      ${colors[0]} 0%,
-      ${colors[1]} 30%,
-      ${colors[2]} 60%,
-      ${nextColors[0]} 100%
-    )`;
-  };
+  const mouseParallaxX = (mousePosition.x - window.innerWidth / 2) * 0.02;
+  const mouseParallaxY = (mousePosition.y - window.innerHeight / 2) * 0.02;
 
   return (
-    <div className="text-white min-h-screen overflow-x-hidden relative">
-      {/* Dynamic Gradient Background that changes with projects */}
-      <div 
-        className="fixed inset-0 transition-all duration-1000 ease-out"
-        style={{ 
-          zIndex: -1,
-          background: getDynamicGradient(),
-          backgroundSize: '100% 100%',
-        }}
-      />
+    <div className="bg-gray-950 text-white min-h-screen overflow-x-hidden relative">
+      {/* Animated Background Canvas */}
+      <canvas ref={canvasRef} className="fixed inset-0 z-0" />
       
-      {/* Animated Background Particles with dynamic colors */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: -1 }}>
-        {[...Array(20)].map((_, i) => {
-          const colors = getCurrentProjectColors();
-          const randomColor = colors[Math.floor(Math.random() * colors.length)];
-          return (
-            <div
-              key={i}
-              className={`absolute animate-pulse opacity-20`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`,
-                transform: `translateY(${scrollY * (0.05 + Math.random() * 0.1)}px)`,
-              }}
-            >
-              <div 
-                className="w-2 h-2 rounded-full blur-sm"
-                style={{ backgroundColor: randomColor }}
-              />
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              JD
             </div>
-          );
-        })}
-      </div>
-
-      {/* Enhanced Hero Section with Profile Background */}
-      <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden perspective-2000">
-        {/* Profile Image Background */}
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `url('https://images.pexels.com/photos/3785077/pexels-photo-3785077.jpeg?auto=compress&cs=tinysrgb&w=1200')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            filter: 'grayscale(30%) brightness(0.3)',
-            transform: `scale(${1 + scrollY * 0.0005}) translateY(${scrollY * 0.1}px)`,
-          }}
-        />
-        
-        {/* Gradient Overlay for text readability */}
-        <div 
-          className="absolute inset-0 z-5"
-          style={{
-            background: `linear-gradient(135deg, 
-              ${getCurrentProjectColors()[0]}CC 0%,
-              ${getCurrentProjectColors()[1]}99 50%,
-              ${getCurrentProjectColors()[2]}CC 100%
-            )`,
-          }}
-        />
-        
-        {/* 3D Layered Backgrounds */}
-        <div className="absolute inset-0 z-10 transform-style-3d">
-          {/* Floating 3D Cubes with dynamic colors */}
-          {[...Array(15)].map((_, i) => {
-            const colors = getCurrentProjectColors();
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            return (
-              <div
-                key={i}
-                className="absolute animate-float opacity-10"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 6}s`,
-                  transform: `translateZ(${Math.random() * 200 - 100}px) rotateX(${Math.random() * 360}deg) rotateY(${Math.random() * 360}deg)`,
-                }}
-              >
-                <div 
-                  className="w-8 h-8 transform rotate-45 shadow-lg"
-                  style={{
-                    background: `linear-gradient(45deg, ${randomColor}, ${colors[(Math.floor(Math.random() * colors.length))]})`,
-                    transform: `rotateX(45deg) rotateY(45deg) translateZ(${Math.random() * 50}px)`,
-                  }}
-                />
-              </div>
-            );
-          })}
-          
-          {/* 3D Animated Grid with dynamic colors */}
-          <div className="absolute inset-0 opacity-20">
-            <div 
-              className="absolute inset-0 transition-all duration-1000 transform-style-3d"
-              style={{
-                backgroundImage: `linear-gradient(${getCurrentProjectColors()[0]}20 1px, transparent 1px), linear-gradient(90deg, ${getCurrentProjectColors()[0]}20 1px, transparent 1px)`,
-                backgroundSize: '50px 50px',
-                transform: `translate3d(${mouseParallaxX}px, ${mouseParallaxY}px, -50px) rotateX(${scrollY * 0.02}deg)`,
-              }}
-            />
-          </div>
-          
-          {/* Layered Geometric Shapes with dynamic colors */}
-          <div className="absolute inset-0 opacity-30">
-            {[...Array(8)].map((_, i) => {
-              const colors = getCurrentProjectColors();
-              return (
-                <div
-                  key={i}
-                  className="absolute animate-tilt"
-                  style={{
-                    left: `${(i * 15) + 10}%`,
-                    top: `${(i % 2) * 60 + 20}%`,
-                    animationDelay: `${i * 1.5}s`,
-                    transform: `translateZ(${i * 30 - 60}px) perspective(500px)`,
-                  }}
+            <div className="hidden md:flex gap-8">
+              {['About', 'Skills', 'Projects', 'Contact'].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className={`text-sm font-medium transition-colors duration-300 ${
+                    activeSection === item.toLowerCase() 
+                      ? 'text-blue-400' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
                 >
-                  <div 
-                    className="w-20 h-20 transform rotate-45 backdrop-blur-sm"
-                    style={{
-                      background: `linear-gradient(135deg, transparent 0%, ${colors[1]}30 100%)`,
-                      border: `1px solid ${colors[0]}50`,
-                      clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="relative z-20 text-center max-w-6xl mx-auto px-6">
-          <div 
-            className="transform transition-all duration-1000"
-            style={{
-              transform: `translateY(${scrollY * 0.3}px) rotateX(${scrollY * 0.05}deg) perspective(1000px)`,
-            }}
-          >
-            {/* Enhanced 3D Floating Elements (replacing profile image) */}
-            <div className="relative mb-12 perspective-1000">
-              <div 
-                className="relative mx-auto w-48 h-48 md:w-56 md:h-56 mb-8 transform-style-3d"
-                style={{
-                  transform: `translateY(${mouseParallaxY * 3}px) translateX(${mouseParallaxX * 3}px) rotateX(${scrollY * 0.02}deg) rotateY(${mouseParallaxX * 0.1}deg) translateZ(50px)`,
-                }}
-              >
-                {/* Multiple 3D Rings at different depths with dynamic colors */}
-                <div className="absolute inset-0 animate-spin-slow transform-style-3d">
-                  <div 
-                    className="absolute inset-0 rounded-full border-2 animate-pulse"
-                    style={{ 
-                      borderColor: `${getCurrentProjectColors()[0]}50`,
-                      transform: 'translateZ(20px)' 
-                    }} 
-                  />
-                </div>
-                <div className="absolute inset-2 animate-spin-slower transform-style-3d">
-                  <div 
-                    className="absolute inset-0 rounded-full border"
-                    style={{ 
-                      borderColor: `${getCurrentProjectColors()[1]}40`,
-                      transform: 'translateZ(10px)' 
-                    }} 
-                  />
-                </div>
-                <div className="absolute inset-4 animate-spin transform-style-3d" style={{ animationDuration: '15s' }}>
-                  <div 
-                    className="absolute inset-0 rounded-full border"
-                    style={{ 
-                      borderColor: `${getCurrentProjectColors()[2]}30`,
-                      transform: 'translateZ(-10px)' 
-                    }} 
-                  />
-                </div>
-                
-                {/* 3D Floating Particles with dynamic colors */}
-                {[...Array(12)].map((_, i) => {
-                  const colors = getCurrentProjectColors();
-                  const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                  return (
-                    <div
-                      key={i}
-                      className="absolute animate-float opacity-60"
-                      style={{
-                        left: `${20 + (i * 30) % 80}%`,
-                        top: `${10 + (i * 25) % 80}%`,
-                        animationDelay: `${i * 0.3}s`,
-                        animationDuration: `${3 + i * 0.2}s`,
-                        transform: `translateZ(${(i % 3) * 20 + 10}px) rotateY(${i * 30}deg)`,
-                      }}
-                    >
-                      <div 
-                        className="w-3 h-3 rounded-full blur-sm shadow-lg"
-                        style={{ 
-                          background: `linear-gradient(45deg, ${randomColor}, ${colors[(i + 1) % colors.length]})`
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-                
-                {/* Enhanced 3D Glow Effects with dynamic colors */}
-                <div 
-                  className="absolute inset-0 rounded-full opacity-20 blur-xl animate-pulse"
-                  style={{ 
-                    background: `linear-gradient(45deg, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]})`,
-                    transform: 'translateZ(-20px)' 
-                  }} 
-                />
-                <div 
-                  className="absolute inset-2 rounded-full opacity-15 blur-2xl animate-pulse"
-                  style={{ 
-                    background: `linear-gradient(45deg, ${getCurrentProjectColors()[1]}, ${getCurrentProjectColors()[2]})`,
-                    transform: 'translateZ(-30px)', 
-                    animationDelay: '1s' 
-                  }} 
-                />
-              </div>
-            </div>
-
-            {/* Enhanced 3D Name with Dynamic Colors */}
-            <div className="relative mb-8 perspective-1000">
-              <div className="relative transform-style-3d">
-                {/* Multiple shadow layers for extreme 3D depth with dynamic colors */}
-                <h1 
-                  className="absolute text-6xl md:text-8xl font-black transform" 
-                  style={{ 
-                    color: `${getCurrentProjectColors()[0]}20`,
-                    transform: 'translate3d(8px, 8px, -40px)' 
-                  }}
-                >
-                  John Doe
-                </h1>
-                <h1 
-                  className="absolute text-6xl md:text-8xl font-black transform" 
-                  style={{ 
-                    color: `${getCurrentProjectColors()[1]}30`,
-                    transform: 'translate3d(6px, 6px, -30px)' 
-                  }}
-                >
-                  John Doe
-                </h1>
-                <h1 
-                  className="absolute text-6xl md:text-8xl font-black transform" 
-                  style={{ 
-                    color: `${getCurrentProjectColors()[2]}40`,
-                    transform: 'translate3d(4px, 4px, -20px)' 
-                  }}
-                >
-                  John Doe
-                </h1>
-                <h1 className="absolute text-6xl md:text-8xl font-black text-white/5 transform" style={{ transform: 'translate3d(2px, 2px, -10px)' }}>
-                  John Doe
-                </h1>
-                
-                {/* Main 3D Text with dynamic gradient */}
-                <h1 
-                  className="relative text-6xl md:text-8xl font-black bg-gradient-to-r bg-clip-text text-transparent transform-gpu transition-transform duration-300 hover:scale-105"
-                  style={{ 
-                    backgroundImage: `linear-gradient(45deg, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]}, ${getCurrentProjectColors()[2]})`,
-                    transform: `translateZ(20px) rotateX(${scrollY * 0.01}deg) rotateY(${mouseParallaxX * 0.05}deg)`,
-                    textShadow: `
-                      0 0 10px ${getCurrentProjectColors()[0]}80,
-                      0 0 20px ${getCurrentProjectColors()[1]}60,
-                      0 0 30px ${getCurrentProjectColors()[2]}40
-                    `
-                  }}
-                >
-                  John Doe
-                </h1>
-              </div>
-            </div>
-
-            {/* Enhanced Subtitle */}
-            <div className="mb-8">
-              <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-                Computer Science Graduate
-              </p>
-              <div className="flex flex-wrap justify-center gap-4 text-lg text-gray-400">
-                <span className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-yellow-400" />
-                  Full-Stack Developer
-                </span>
-                <span className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-green-400" />
-                  Problem Solver
-                </span>
-                <span className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-blue-400" />
-                  San Francisco, CA
-                </span>
-              </div>
-            </div>
-
-            {/* Enhanced 3D Skills Preview */}
-            <div className="mb-12 max-w-4xl mx-auto perspective-1000">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {skills.slice(0, 6).map((skill, index) => (
-                  <div 
-                    key={skill.name}
-                    className="card-3d bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all duration-500 transform-style-3d group cursor-pointer"
-                    style={{
-                      animationDelay: `${index * 100}ms`,
-                      transform: `translateY(${scrollY * 0.1}px) translateZ(0px)`,
-                    }}
-                    onMouseEnter={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = (mousePosition.x - rect.left - rect.width / 2) / 10;
-                      const y = (mousePosition.y - rect.top - rect.height / 2) / 10;
-                      e.currentTarget.style.transform = `rotateX(${-y}deg) rotateY(${x}deg) translateZ(20px) scale(1.05)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
-                    }}
-                  >
-                    {/* 3D Card Front */}
-                    <div className="backface-hidden">
-                      <div className="text-sm font-medium text-gray-300 mb-3 group-hover:text-white transition-colors duration-300">
-                        {skill.name}
-                      </div>
-                      <div className="relative">
-                        <div className="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden">
-                          <div 
-                            className="h-3 rounded-full transition-all duration-1000 relative overflow-hidden"
-                            style={{ 
-                              width: `${skill.level}%`,
-                              background: `linear-gradient(45deg, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]})`
-                            }}
-                          >
-                            {/* Animated shimmer effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 animate-pulse" />
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-400 mt-2 text-right">
-                          {skill.level}%
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* 3D Depth Glow */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-z-[-5px]" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Enhanced CTA Buttons */}
-            <div className="flex flex-wrap justify-center gap-6 mb-12">
-              <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/25">
-                <span className="relative z-10 flex items-center gap-2">
-                  <Download className="w-5 h-5" />
-                  Download Resume
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </button>
-              
-              <a href="#timeline" className="group px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-110 hover:shadow-xl">
-                <span className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  View Timeline
-                </span>
-              </a>
-            </div>
-
-            {/* Social Links */}
-            <div className="flex justify-center gap-6">
-              {[
-                { icon: Mail, href: '#', label: 'Email' },
-                { icon: Github, href: '#', label: 'GitHub' },
-                { icon: Linkedin, href: '#', label: 'LinkedIn' }
-              ].map(({ icon: Icon, href, label }) => (
-                <a 
-                  key={label}
-                  href={href}
-                  className="group p-4 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-110 hover:bg-white/10"
-                  aria-label={label}
-                >
-                  <Icon className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors duration-300" />
+                  {item}
                 </a>
               ))}
             </div>
+            <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-colors duration-300">
+              Resume
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center justify-center py-20">
+        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+          {/* Profile Image with 3D Frame */}
+          <div className="relative mb-12 flex justify-center">
+            <div 
+              className="relative transform-style-3d"
+              style={{
+                transform: `rotateX(${mouseParallaxY * 0.5}deg) rotateY(${mouseParallaxX * 0.5}deg)`,
+              }}
+            >
+              {/* 3D Frame layers */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl" />
+              <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-md" />
+              
+              {/* Profile Image Container */}
+              <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-gray-800 shadow-2xl">
+                <img 
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
+                  alt="John Doe"
+                  className="w-full h-full object-cover"
+                />
+                {/* Gradient overlay for depth */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10" />
+              </div>
+              
+              {/* Floating particles around image */}
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute animate-float"
+                  style={{
+                    left: `${Math.cos(i * Math.PI / 3) * 120 + 50}%`,
+                    top: `${Math.sin(i * Math.PI / 3) * 120 + 50}%`,
+                    animationDelay: `${i * 0.5}s`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <div className="w-2 h-2 bg-blue-400 rounded-full opacity-60" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            John Doe
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-gray-400 mb-8">
+            Full-Stack Developer & Computer Science Graduate
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            <span className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm rounded-full text-sm border border-gray-700">
+              <MapPin className="inline w-4 h-4 mr-2" />
+              San Francisco, CA
+            </span>
+            <span className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm rounded-full text-sm border border-gray-700">
+              <Zap className="inline w-4 h-4 mr-2" />
+              Available for hire
+            </span>
+          </div>
+
+          <div className="flex justify-center gap-4 mb-16">
+            <a href="#contact" className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105">
+              Get In Touch
+            </a>
+            <a href="#timeline" className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105">
+              View Projects
+            </a>
+          </div>
+
+          <div className="flex justify-center gap-6">
+            {[Github, Linkedin, Mail].map((Icon, index) => (
+              <a
+                key={index}
+                href="#"
+                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110"
+              >
+                <Icon className="w-5 h-5" />
+              </a>
+            ))}
           </div>
         </div>
 
-        {/* Enhanced Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex flex-col items-center gap-2 animate-bounce">
-            <span className="text-sm text-gray-400 font-medium">Scroll to explore</span>
-            <ChevronDown className="w-6 h-6 text-gray-400" />
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <ChevronDown className="w-6 h-6 animate-bounce text-gray-400" />
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-20 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div
+              data-animate
+              id="about-text"
+              className={`transform transition-all duration-1000 ${
+                visibleItems.has('about-text') ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
+              }`}
+            >
+              <h2 className="text-4xl font-bold mb-6">About Me</h2>
+              <p className="text-gray-400 mb-6 leading-relaxed">
+                I'm a passionate full-stack developer with a recent Computer Science degree and a strong foundation in modern web technologies. 
+                My journey in tech has been driven by curiosity and a desire to create meaningful solutions that make a difference.
+              </p>
+              <p className="text-gray-400 mb-8 leading-relaxed">
+                With expertise spanning from front-end frameworks to cloud architecture, I bring a holistic approach to software development. 
+                I thrive in collaborative environments and am always eager to tackle new challenges that push the boundaries of what's possible.
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">4+</div>
+                  <div className="text-sm text-gray-400">Years of Experience</div>
+                </div>
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                  <div className="text-3xl font-bold text-green-400 mb-2">15+</div>
+                  <div className="text-sm text-gray-400">Projects Completed</div>
+                </div>
+              </div>
+            </div>
+            
+            <div
+              data-animate
+              id="about-visual"
+              className={`transform transition-all duration-1000 ${
+                visibleItems.has('about-visual') ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0'
+              }`}
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-3xl opacity-20" />
+                <div className="relative bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
+                  <div className="grid grid-cols-3 gap-4">
+                    {[Globe, Code, Cloud, Database, Cpu, Terminal].map((Icon, index) => (
+                      <div
+                        key={index}
+                        className="aspect-square bg-gray-900/50 rounded-xl flex items-center justify-center hover:bg-gray-900/80 transition-colors duration-300"
+                      >
+                        <Icon className="w-8 h-8 text-blue-400" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Timeline Section */}
-      <section id="timeline" className="relative py-32 z-30">
-        {/* Section Background Overlay */}
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
-        
+      {/* Skills Section */}
+      <section id="skills" className="py-20 relative z-10 bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-6">
-          {/* Section Header */}
-          <div className="text-center mb-20 relative z-40">
-            <h2 
-              className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r bg-clip-text text-transparent transition-all duration-1000"
-              style={{
-                backgroundImage: `linear-gradient(45deg, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]}, ${getCurrentProjectColors()[2]})`
-              }}
-            >
-              My Journey
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              From recent achievements to foundational experiences - a timeline of growth, learning, and innovation
-            </p>
+          <h2 className="text-4xl font-bold text-center mb-16">Technical Skills</h2>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {skills.map((skill, index) => (
+              <div
+                key={skill.name}
+                data-animate
+                id={`skill-${index}`}
+                className={`transform transition-all duration-700 ${
+                  visibleItems.has(`skill-${index}`) 
+                    ? 'translate-y-0 opacity-100' 
+                    : 'translate-y-20 opacity-0'
+                }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 group">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors duration-300">
+                        <skill.icon className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <h3 className="font-semibold">{skill.name}</h3>
+                    </div>
+                    <span className="text-sm text-gray-400">{skill.level}%</span>
+                  </div>
+                  <div className="relative h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-1000"
+                      style={{ 
+                        width: visibleItems.has(`skill-${index}`) ? `${skill.level}%` : '0%',
+                        transitionDelay: `${index * 100 + 300}ms`
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          <div className="space-y-24 relative z-40">
+      {/* Timeline Section */}
+      <section id="timeline" className="py-20 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center mb-16">Projects & Experience</h2>
+          
+          <div className="space-y-24">
             {projects.map((project, index) => (
               <div
                 key={project.id}
-                id={`project-${project.id}`}
                 data-animate
-                className="relative"
+                id={`project-${project.id}`}
+                className={`relative transform transition-all duration-1000 ${
+                  visibleItems.has(`project-${project.id}`) 
+                    ? 'translate-y-0 opacity-100' 
+                    : 'translate-y-20 opacity-0'
+                }`}
               >
-                {/* Year Badge */}
-                <div className="flex items-center justify-center mb-8">
-                  <div className="flex items-center gap-4">
-                    <div 
-                      className="h-px flex-1 w-20 transition-all duration-1000"
-                      style={{
-                        background: `linear-gradient(to right, transparent, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[0]})`
-                      }}
-                    ></div>
-                    <div className={`px-6 py-3 bg-gradient-to-r ${getCategoryColor(project.category)} rounded-full text-white font-bold text-lg shadow-lg`}>
-                      {project.year}
-                    </div>
-                    <div 
-                      className="h-px flex-1 w-20 transition-all duration-1000"
-                      style={{
-                        background: `linear-gradient(to left, transparent, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[0]})`
-                      }}
-                    ></div>
-                  </div>
+                {/* Year display - floating to the side */}
+                <div className={`absolute top-0 ${index % 2 === 0 ? 'left-0 lg:-left-20' : 'right-0 lg:-right-20'} hidden lg:block`}>
+                  <div className="text-6xl font-bold text-gray-800">{project.year}</div>
                 </div>
-
-                {/* Project Card */}
-                <div 
-                  className={`max-w-4xl mx-auto transform transition-all duration-1000 perspective-1000 ${
-                    visibleItems.has(`project-${project.id}`) 
-                      ? 'translate-y-0 opacity-100 scale-100' 
-                      : 'translate-y-32 opacity-0 scale-95'
-                  }`}
-                  style={{
-                    transitionDelay: `${index * 150}ms`,
-                  }}
-                >
-                  <div 
-                    className="group bg-gray-800/80 backdrop-blur-xl rounded-3xl overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 transform-style-3d cursor-pointer"
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'rotateX(5deg) rotateY(-5deg) translateZ(30px) scale(1.02)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
-                    }}
-                  >
-                    {/* Enhanced dynamic glow effect with 3D depth */}
-                    <div className={`absolute inset-0 bg-gradient-to-r ${getCategoryColor(project.category)} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl`} style={{ transform: 'translateZ(-10px)' }} />
-                    <div className={`absolute inset-0 bg-gradient-to-r ${getCategoryColor(project.category)} opacity-0 group-hover:opacity-5 transition-opacity duration-700 rounded-3xl blur-xl`} style={{ transform: 'translateZ(-20px)' }} />
-                    
-                    {/* Image and Content Layout */}
-                    <div className={`grid ${index % 2 === 0 ? 'md:grid-cols-2' : 'md:grid-cols-2'} gap-0`}>
+                
+                {/* Year for mobile - centered */}
+                <div className="text-center mb-8 lg:hidden">
+                  <div className="text-4xl font-bold text-gray-700">{project.year}</div>
+                </div>
+                
+                {/* Project card */}
+                <div className="max-w-5xl mx-auto">
+                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-all duration-300 group hover:shadow-2xl hover:shadow-blue-500/10">
+                    <div className={`grid md:grid-cols-2 gap-0 ${index % 2 === 0 ? '' : 'md:flex-row-reverse'}`}>
                       {/* Image Section */}
-                      <div className={`relative overflow-hidden h-80 md:h-96 ${index % 2 === 0 ? 'order-1' : 'order-2'}`}>
-                        <img 
-                          src={project.image} 
+                      <div className={`relative h-80 md:h-full overflow-hidden ${index % 2 === 0 ? '' : 'md:order-2'}`}>
+                        <img
+                          src={project.image}
                           alt={project.title}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent" />
                         
-                        {/* Category Icon */}
+                        {/* Category badge */}
                         <div className="absolute top-6 left-6">
-                          <div className={`p-3 bg-gradient-to-r ${getCategoryColor(project.category)} rounded-full shadow-lg`}>
+                          <div className={`p-3 bg-gradient-to-r ${getCategoryColor(project.category)} rounded-xl shadow-lg`}>
                             {getCategoryIcon(project.category)}
                           </div>
                         </div>
-
-                        {/* Featured Badge */}
+                        
                         {project.featured && (
-                          <div className="absolute top-6 right-6">
-                            <div className="px-4 py-2 bg-yellow-500/20 backdrop-blur-sm rounded-full border border-yellow-400/30 flex items-center gap-2">
-                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                              <span className="text-yellow-400 text-sm font-medium">Featured</span>
-                            </div>
+                          <div className="absolute top-6 right-6 px-4 py-2 bg-yellow-500/20 backdrop-blur-sm rounded-full border border-yellow-500/30 flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-sm font-medium text-yellow-400">Featured</span>
                           </div>
                         )}
-
-                        {/* Category Badge */}
-                        <div className="absolute bottom-6 left-6">
-                          <span className="px-4 py-2 text-sm font-medium rounded-full bg-gray-900/80 backdrop-blur-sm text-gray-200 border border-gray-600/50 capitalize">
-                            {project.category}
-                          </span>
-                        </div>
                       </div>
-
+                      
                       {/* Content Section */}
-                      <div className={`p-8 md:p-12 flex flex-col justify-center ${index % 2 === 0 ? 'order-2' : 'order-1'}`}>
-                        <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">
-                          {project.title}
-                        </h3>
+                      <div className={`p-8 md:p-10 flex flex-col justify-center ${index % 2 === 0 ? '' : 'md:order-1'}`}>
+                        <div className="mb-4">
+                          <span className="text-sm text-gray-400 uppercase tracking-wider">{project.category}</span>
+                        </div>
                         
-                        <p className="text-gray-300 mb-8 leading-relaxed text-lg">
-                          {project.description}
-                        </p>
-
-                        {/* Project Stats */}
+                        <h3 className="text-3xl font-bold mb-4">{project.title}</h3>
+                        <p className="text-gray-400 mb-6 leading-relaxed">{project.description}</p>
+                        
+                        {/* Stats Grid */}
                         {(project.impact || project.duration || project.teamSize) && (
-                          <div className="grid grid-cols-1 gap-4 mb-8">
+                          <div className="grid grid-cols-3 gap-4 mb-6">
                             {project.impact && (
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-500/20 rounded-lg">
-                                  <Target className="w-5 h-5 text-green-400" />
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 text-sm">Impact</span>
-                                  <div className="text-green-400 font-semibold">{project.impact}</div>
-                                </div>
+                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
+                                <Target className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                                <div className="text-xs text-gray-400">Impact</div>
+                                <div className="text-sm font-semibold text-green-400">{project.impact}</div>
                               </div>
                             )}
                             {project.duration && (
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-500/20 rounded-lg">
-                                  <Calendar className="w-5 h-5 text-blue-400" />
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 text-sm">Duration</span>
-                                  <div className="text-blue-400 font-semibold">{project.duration}</div>
-                                </div>
+                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
+                                <Calendar className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                <div className="text-xs text-gray-400">Duration</div>
+                                <div className="text-sm font-semibold text-blue-400">{project.duration}</div>
                               </div>
                             )}
                             {project.teamSize && (
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-purple-500/20 rounded-lg">
-                                  <Users className="w-5 h-5 text-purple-400" />
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 text-sm">Team Size</span>
-                                  <div className="text-purple-400 font-semibold">{project.teamSize} members</div>
-                                </div>
+                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
+                                <Users className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                                <div className="text-xs text-gray-400">Team</div>
+                                <div className="text-sm font-semibold text-purple-400">{project.teamSize}</div>
                               </div>
                             )}
                           </div>
                         )}
-
-                        {/* Tech Stack */}
-                        <div className="flex flex-wrap gap-2 mb-8">
-                          {project.tech.map((tech) => (
-                            <span 
+                        
+                        {/* Tech stack */}
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {project.tech.slice(0, 5).map((tech) => (
+                            <span
                               key={tech}
-                              className="px-3 py-2 text-sm bg-gray-700/50 rounded-lg text-gray-300 border border-gray-600/50 hover:border-gray-500/50 hover:bg-gray-600/50 transition-all duration-300"
+                              className="px-3 py-1 text-xs bg-gray-900/50 rounded-full text-gray-300 border border-gray-700"
                             >
                               {tech}
                             </span>
                           ))}
+                          {project.tech.length > 5 && (
+                            <span className="px-3 py-1 text-xs bg-gray-900/50 rounded-full text-gray-400 border border-gray-700">
+                              +{project.tech.length - 5} more
+                            </span>
+                          )}
                         </div>
-
-                        {/* Action Buttons */}
+                        
+                        {/* Actions */}
                         {(project.github || project.demo) && (
                           <div className="flex gap-4">
                             {project.github && (
-                              <a 
+                              <a
                                 href={project.github}
-                                className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 rounded-xl hover:bg-gray-600/50 transition-all duration-300 hover:scale-105 border border-gray-600/50 hover:border-gray-500/50"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 rounded-lg hover:bg-gray-900/80 transition-all duration-300 text-sm"
                               >
-                                <Github className="w-5 h-5" />
-                                <span className="font-medium">View Code</span>
+                                <Github className="w-4 h-4" />
+                                View Code
                               </a>
                             )}
                             {project.demo && (
-                              <a 
+                              <a
                                 href={project.demo}
-                                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-xl hover:from-blue-600/30 hover:to-purple-600/30 transition-all duration-300 hover:scale-105"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/50 rounded-lg hover:bg-blue-500/30 transition-all duration-300 text-sm"
                               >
-                                <ExternalLink className="w-5 h-5" />
-                                <span className="font-medium">Live Demo</span>
+                                <ExternalLink className="w-4 h-4" />
+                                Live Demo
                               </a>
                             )}
                           </div>
@@ -868,174 +600,114 @@ function App() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Bottom Section Divider */}
-          <div className="mt-32 flex items-center justify-center">
-            <div className="flex items-center gap-4">
-              <div 
-                className="h-px flex-1 w-32 transition-all duration-1000"
-                style={{
-                  background: `linear-gradient(to right, transparent, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[0]})`
-                }}
-              ></div>
-              <div className="px-6 py-3 bg-gray-800/80 backdrop-blur-sm rounded-full border border-gray-600/50">
-                <span className="text-gray-400 font-medium">End of Journey</span>
-              </div>
-              <div 
-                className="h-px flex-1 w-32 transition-all duration-1000"
-                style={{
-                  background: `linear-gradient(to left, transparent, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[0]})`
-                }}
-              ></div>
-            </div>
+      {/* Contact Section */}
+      <section id="contact" className="py-20 relative z-10 bg-gray-900/50">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-bold mb-6">Let's Connect</h2>
+          <p className="text-xl text-gray-400 mb-12">
+            I'm always interested in hearing about new opportunities and exciting projects.
+          </p>
+          
+          <div className="flex justify-center gap-4 mb-12">
+            <a
+              href="mailto:john@example.com"
+              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            >
+              <Mail className="w-5 h-5" />
+              Get In Touch
+            </a>
+            <button className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105 flex items-center gap-2">
+              <Download className="w-5 h-5" />
+              Download Resume
+            </button>
+          </div>
+          
+          <div className="flex justify-center gap-6">
+            {[
+              { icon: Github, href: '#', label: 'GitHub' },
+              { icon: Linkedin, href: '#', label: 'LinkedIn' },
+              { icon: Mail, href: 'mailto:john@example.com', label: 'Email' },
+            ].map(({ icon: Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110"
+                aria-label={label}
+              >
+                <Icon className="w-5 h-5" />
+              </a>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Enhanced Footer */}
-      <footer className="relative py-20 border-t border-gray-700/50 z-30">
-        {/* Footer Background Overlay */}
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
-        
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12 relative z-40">
-            <h3 
-              className="text-4xl font-bold mb-6 bg-gradient-to-r bg-clip-text text-transparent transition-all duration-1000"
-              style={{
-                backgroundImage: `linear-gradient(45deg, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]})`
-              }}
-            >
-              Let's Create Something Extraordinary
-            </h3>
-            <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-              I'm passionate about solving complex problems and building innovative solutions. 
-              Let's discuss how we can work together to bring your ideas to life.
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-6 mb-12">
-              <a 
-                href="#" 
-                className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold text-white transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/25"
-              >
-                <span className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  Get In Touch
-                </span>
-              </a>
-              <a 
-                href="#" 
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-110"
-              >
-                <span className="flex items-center gap-2">
-                  <Download className="w-5 h-5" />
-                  Download Resume
-                </span>
-              </a>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-8 mb-12 relative z-40">
-            {[
-              { icon: Mail, href: 'mailto:john@example.com', label: 'Email' },
-              { icon: Github, href: '#', label: 'GitHub' },
-              { icon: Linkedin, href: '#', label: 'LinkedIn' }
-            ].map(({ icon: Icon, href, label }) => (
-              <a 
-                key={label}
-                href={href}
-                className="group p-4 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-110 hover:bg-white/10"
-                aria-label={label}
-              >
-                <Icon className="w-7 h-7 text-gray-400 group-hover:text-white transition-colors duration-300" />
-              </a>
-            ))}
-          </div>
-
-          <div className="text-center text-gray-500 text-sm relative z-40">
-            <p className="mb-2">© 2024 John Doe. Crafted with passion and precision.</p>
-            <p>Built with React, TypeScript, and Tailwind CSS</p>
-          </div>
+      {/* Footer */}
+      <footer className="py-8 border-t border-gray-800 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 text-center text-gray-400 text-sm">
+          <p>© 2024 John Doe. Built with React, TypeScript, and Tailwind CSS.</p>
         </div>
       </footer>
 
-      {/* 3D Floating Progress Indicator */}
-      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50 perspective-1000">
-        <div 
-          className="relative w-2 h-32 bg-gray-700/30 rounded-full backdrop-blur-sm border border-gray-600/20 transform-style-3d"
-          style={{
-            transform: `rotateX(${scrollY * 0.05}deg) translateZ(10px)`,
-          }}
-        >
-          {/* Progress Fill */}
-          <div 
-            className="absolute bottom-0 left-0 w-full rounded-full transition-all duration-300"
-            style={{ 
+      {/* Scroll Progress Indicator */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
+        <div className="relative w-1 h-32 bg-gray-800 rounded-full overflow-hidden">
+          <div
+            className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-500 to-cyan-500 rounded-full transition-all duration-300"
+            style={{
               height: `${Math.min(100, (scrollY / (document.body.scrollHeight - window.innerHeight)) * 100)}%`,
-              background: `linear-gradient(to top, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]})`,
-              transform: 'translateZ(5px)',
             }}
           />
-          
-          {/* 3D Progress Indicator Dot */}
-          <div 
-            className="absolute w-4 h-4 rounded-full shadow-lg transform -translate-x-1 border-2 border-white/20 animate-pulse"
-            style={{ 
-              top: `${Math.min(90, (scrollY / (document.body.scrollHeight - window.innerHeight)) * 100)}%`,
-              background: `linear-gradient(45deg, ${getCurrentProjectColors()[0]}, ${getCurrentProjectColors()[1]})`,
-              transform: `translateX(-50%) translateZ(15px) rotateY(${scrollY * 0.1}deg)`,
-            }}
-          />
-          
-          {/* Floating particles around indicator */}
-          {[...Array(3)].map((_, i) => {
-            const colors = getCurrentProjectColors();
-            return (
-              <div
-                key={i}
-                className="absolute w-1 h-1 rounded-full opacity-60 animate-float"
-                style={{
-                  backgroundColor: colors[i % colors.length],
-                  right: `${10 + i * 8}px`,
-                  top: `${40 + i * 15}%`,
-                  animationDelay: `${i * 0.8}s`,
-                  transform: `translateZ(${i * 5 + 5}px)`,
-                }}
-              />
-            );
-          })}
         </div>
       </div>
 
-      {/* 3D Floating Action Button */}
-      <div className="fixed bottom-8 right-8 z-50 perspective-1000">
-        <button 
-          className="group relative w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/30 transform-style-3d"
-          style={{
-            transform: `translateZ(20px) rotateX(${scrollY * 0.02}deg) rotateY(${mouseParallaxX * 0.1}deg)`,
-          }}
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateZ(30px) rotateX(10deg) rotateY(-10deg) scale(1.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = `translateZ(20px) rotateX(${scrollY * 0.02}deg) rotateY(${mouseParallaxX * 0.1}deg) scale(1)`;
-          }}
-        >
-          {/* Multiple 3D layers for depth */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ transform: 'translateZ(-5px)' }} />
-          <div className="absolute inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ transform: 'translateZ(-10px)' }} />
-          
-          {/* Arrow Icon with 3D effect */}
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <ChevronDown className="w-6 h-6 text-white transform rotate-180 transition-transform duration-300 group-hover:scale-110" style={{ transform: 'translateZ(5px) rotate(180deg)' }} />
-          </div>
-          
-          {/* Animated ring around button */}
-          <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping opacity-0 group-hover:opacity-100" style={{ transform: 'translateZ(25px)' }} />
-        </button>
-      </div>
+      {/* Back to Top Button */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-8 right-8 p-4 bg-blue-500 hover:bg-blue-600 rounded-lg shadow-lg transition-all duration-300 z-40 ${
+          scrollY > 300 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+        }`}
+      >
+        <ChevronDown className="w-5 h-5 transform rotate-180" />
+      </button>
     </div>
   );
 }
+
+// Add custom CSS for 3D transforms
+const style = document.createElement('style');
+style.textContent = `
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .animate-spin-slow {
+    animation: spin 20s linear infinite;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotateX(0deg) rotateY(0deg); }
+    to { transform: rotateX(360deg) rotateY(360deg); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .rotateY-0 { transform: rotateY(0deg); }
+  .rotateY-90 { transform: rotateY(90deg); }
+  .rotateY-180 { transform: rotateY(180deg); }
+  .rotateY-270 { transform: rotateY(270deg); }
+  .rotateX-90 { transform: rotateX(90deg); }
+  .translate-z-32 { transform: translateZ(8rem); }
+`;
+document.head.appendChild(style);
 
 export default App;
