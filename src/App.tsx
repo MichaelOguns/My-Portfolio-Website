@@ -23,6 +23,7 @@ import {
   Cloud,
   Terminal,
 } from "lucide-react";
+import ThreeDCubeCanvas from "./ThreeDCubeCanvas";
 
 interface Project {
   id: string;
@@ -226,83 +227,184 @@ function App() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const particles: {
+    // Smaller particles, random group sizes
+    const particleCount = 120;
+    const groupSizes = [6, 5]; // 6 for flower, 5 for fish
+    const colors = [
+      "#3b82f6",
+      "#a78bfa",
+      "#06b6d4",
+      "#f472b6",
+      "#f59e42",
+      "#22d3ee",
+    ];
+
+    type Particle = {
       x: number;
       y: number;
-      z: number;
+      tx: number;
+      ty: number;
       vx: number;
       vy: number;
-      size: number;
-    }[] = [];
-    const particleCount = 60;
+      color: string;
+      folded: boolean;
+      group: number;
+      groupSize: number;
+    };
 
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        z: Math.random() * 1000,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 2 + 1.5,
+    // Create particles and assign to random groups
+    const particles: Particle[] = [];
+    let group = 0;
+    let i = 0;
+    while (i < particleCount) {
+      const groupSize =
+        groupSizes[Math.floor(Math.random() * groupSizes.length)];
+      for (let j = 0; j < groupSize && i < particleCount; j++, i++) {
+        // Each particle gets a random folded position anywhere on the canvas
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          tx: Math.random() * canvas.width,
+          ty: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          color: colors[i % colors.length],
+          folded: false,
+          group,
+          groupSize,
+        });
+      }
+      group++;
+    }
+
+    function foldGroup(group: number, fold: boolean) {
+      particles.forEach((p) => {
+        if (p.group === group) {
+          p.folded = fold;
+        }
       });
     }
 
-    const animate = () => {
+    function origamiWave() {
+      for (let g = 0; g < group; g++) {
+        setTimeout(() => foldGroup(g, true), g * 100);
+        setTimeout(() => foldGroup(g, false), g * 100 + 500);
+      }
+    }
+
+    let lastWave = Date.now();
+
+    function drawFlower(
+      ctx: CanvasRenderingContext2D,
+      groupParticles: Particle[]
+    ) {
+      // Draw petals
+      groupParticles.forEach((p, idx) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.7;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+      // Draw center
+      const center = groupParticles[0];
+      ctx.beginPath();
+      ctx.arc(center.tx, center.ty, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.shadowColor = center.color;
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawFish(
+      ctx: CanvasRenderingContext2D,
+      groupParticles: Particle[]
+    ) {
+      // Body (ellipse)
+      const body = groupParticles[0];
+      ctx.save();
+      ctx.translate(body.tx, body.ty);
+      ctx.rotate(Math.random() * Math.PI * 2);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 14, 7, 0, 0, Math.PI * 2);
+      ctx.fillStyle = body.color;
+      ctx.globalAlpha = 0.8;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      // Tail (triangle)
+      ctx.beginPath();
+      ctx.moveTo(7, 0);
+      ctx.lineTo(18, -7);
+      ctx.lineTo(18, 7);
+      ctx.closePath();
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw particles
-      particles.forEach((particle) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        // Bounce off edges
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-
-        const scale = particle.z / 1000;
-        const size = particle.size * scale;
-        const opacity = 0.7 * scale + 0.3;
-
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(100, 150, 255, ${opacity})`;
-        ctx.shadowColor = "rgba(100,150,255,0.5)";
-        ctx.shadowBlur = 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+      // Move particles
+      particles.forEach((p) => {
+        if (p.folded) {
+          p.x += (p.tx - p.x) * 0.08;
+          p.y += (p.ty - p.y) * 0.08;
+        } else {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        }
       });
 
-      // Draw connecting lines
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(100, 150, 255, ${1 - dist / 120})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
+      // Draw animal/flower shapes
+      for (let g = 0; g < group; g++) {
+        const groupParticles = particles.filter((p) => p.group === g);
+        if (groupParticles.length === groupParticles[0]?.groupSize) {
+          if (groupParticles.length === 6) {
+            drawFlower(ctx, groupParticles);
+          } else if (groupParticles.length === 5) {
+            drawFish(ctx, groupParticles);
           }
         }
       }
 
+      // Draw particles (smaller)
+      particles.forEach((p) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 6;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // Trigger origami wave every 3 seconds
+      if (Date.now() - lastWave > 3000) {
+        origamiWave();
+        lastWave = Date.now();
+      }
+
       requestAnimationFrame(animate);
-    };
+    }
 
     animate();
 
     const handleResize = () => {
+      if (!canvasRef.current) return;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
@@ -367,7 +469,7 @@ function App() {
         </select>
       </div>
 
-      {/* Animated Background Canvas */}
+      {/* Quantum Entanglement Particle Canvas */}
       <canvas ref={canvasRef} className="fixed inset-0 z-0" />
 
       {/* Navigation */}
