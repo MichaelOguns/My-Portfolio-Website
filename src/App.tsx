@@ -14,6 +14,10 @@ import {
   Calendar,
   Award,
   Users,
+  User,
+  FileText,
+  FileImage,
+  Play,
   Zap,
   Target,
   Layers,
@@ -23,7 +27,519 @@ import {
   Cloud,
   Terminal,
 } from "lucide-react";
-import ThreeDCubeCanvas from "./ThreeDCubeCanvas";
+
+// ML-Themed Particle Background Component
+const MLParticleBackground: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameRef = useRef<number>();
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Clear any existing animation
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // Particle system configuration
+    const particleCount = 120;
+    const colors = [
+      "#3b82f6", // Blue
+      "#06b6d4", // Cyan
+      "#8b5cf6", // Purple
+      "#10b981", // Emerald
+      "#f59e0b", // Amber
+      "#ef4444", // Red
+      "#ffffff", // White
+    ];
+
+    interface Particle {
+      x: number;
+      y: number;
+      targetX: number;
+      targetY: number;
+      originalX: number;
+      originalY: number;
+      vx: number;
+      vy: number;
+      color: string;
+      size: number;
+      isForming: boolean;
+      formationProgress: number;
+      connectionStrength: number;
+      pulsePhase: number;
+    }
+
+    interface Connection {
+      from: number;
+      to: number;
+      strength: number;
+      active: boolean;
+    }
+
+    // Robot/Neural Network formation patterns
+    const formations = {
+      robot: [
+        // Head (rectangle-ish)
+        { x: 0.5, y: 0.25, connections: [1, 2, 3, 4] },
+        { x: 0.45, y: 0.2, connections: [0, 2] },
+        { x: 0.55, y: 0.2, connections: [0, 1] },
+        { x: 0.45, y: 0.3, connections: [0, 4] },
+        { x: 0.55, y: 0.3, connections: [0, 3] },
+        // Body center
+        { x: 0.5, y: 0.45, connections: [0, 6, 7, 8, 9] },
+        { x: 0.42, y: 0.4, connections: [5, 7] },
+        { x: 0.58, y: 0.4, connections: [5, 6] },
+        { x: 0.42, y: 0.5, connections: [5, 9] },
+        { x: 0.58, y: 0.5, connections: [5, 8] },
+        // Arms
+        { x: 0.3, y: 0.45, connections: [6, 11] },
+        { x: 0.2, y: 0.52, connections: [10] },
+        { x: 0.7, y: 0.45, connections: [7, 13] },
+        { x: 0.8, y: 0.52, connections: [12] },
+        // Legs
+        { x: 0.46, y: 0.65, connections: [8, 15] },
+        { x: 0.44, y: 0.8, connections: [14] },
+        { x: 0.54, y: 0.65, connections: [9, 17] },
+        { x: 0.56, y: 0.8, connections: [16] },
+      ],
+      neuralNetwork: [
+        // Input layer
+        { x: 0.15, y: 0.25, connections: [3, 4, 5, 6] },
+        { x: 0.15, y: 0.4, connections: [3, 4, 5, 6] },
+        { x: 0.15, y: 0.55, connections: [3, 4, 5, 6] },
+        // Hidden layer 1
+        { x: 0.35, y: 0.2, connections: [7, 8, 9, 10] },
+        { x: 0.35, y: 0.35, connections: [7, 8, 9, 10] },
+        { x: 0.35, y: 0.5, connections: [7, 8, 9, 10] },
+        { x: 0.35, y: 0.65, connections: [7, 8, 9, 10] },
+        // Hidden layer 2
+        { x: 0.55, y: 0.25, connections: [11, 12] },
+        { x: 0.55, y: 0.375, connections: [11, 12] },
+        { x: 0.55, y: 0.5, connections: [11, 12] },
+        { x: 0.55, y: 0.625, connections: [11, 12] },
+        // Output layer
+        { x: 0.75, y: 0.35, connections: [] },
+        { x: 0.75, y: 0.55, connections: [] },
+      ],
+      dataFlow: [
+        // Data sources
+        { x: 0.1, y: 0.3, connections: [3, 4] },
+        { x: 0.1, y: 0.5, connections: [3, 4, 5] },
+        { x: 0.1, y: 0.7, connections: [4, 5] },
+        // Processing layer
+        { x: 0.3, y: 0.25, connections: [6, 7] },
+        { x: 0.3, y: 0.5, connections: [6, 7, 8] },
+        { x: 0.3, y: 0.75, connections: [7, 8] },
+        // Analysis nodes
+        { x: 0.5, y: 0.2, connections: [9, 10] },
+        { x: 0.5, y: 0.5, connections: [9, 10, 11] },
+        { x: 0.5, y: 0.8, connections: [10, 11] },
+        // Decision layer
+        { x: 0.7, y: 0.35, connections: [12] },
+        { x: 0.7, y: 0.55, connections: [12] },
+        { x: 0.7, y: 0.65, connections: [12] },
+        // Output
+        { x: 0.9, y: 0.5, connections: [] },
+      ],
+      molecularStructure: [
+        // Central atom
+        { x: 0.5, y: 0.5, connections: [1, 2, 3, 4, 5, 6] },
+        // Ring structure
+        { x: 0.6, y: 0.4, connections: [0, 2, 7] },
+        { x: 0.65, y: 0.55, connections: [0, 1, 3] },
+        { x: 0.5, y: 0.7, connections: [0, 2, 4] },
+        { x: 0.35, y: 0.55, connections: [0, 3, 5] },
+        { x: 0.4, y: 0.4, connections: [0, 4, 6] },
+        { x: 0.5, y: 0.3, connections: [0, 5, 1] },
+        // Outer connections
+        { x: 0.75, y: 0.3, connections: [1] },
+        { x: 0.8, y: 0.65, connections: [2] },
+        { x: 0.5, y: 0.85, connections: [3] },
+        { x: 0.2, y: 0.65, connections: [4] },
+        { x: 0.25, y: 0.3, connections: [5] },
+        { x: 0.5, y: 0.15, connections: [6] },
+      ],
+    };
+
+    const formationNames = Object.keys(
+      formations
+    ) as (keyof typeof formations)[];
+    let currentFormation = 0;
+    let formationTimer = 0;
+    const formationDuration = 6000; // 6 seconds per formation
+    const transitionDuration = 2000; // 2 seconds transition
+
+    // Initialize particles
+    const particles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        targetX: Math.random() * canvas.width,
+        targetY: Math.random() * canvas.height,
+        originalX: Math.random() * canvas.width,
+        originalY: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 2.5 + 1,
+        isForming: false,
+        formationProgress: 0,
+        connectionStrength: 0,
+        pulsePhase: Math.random() * Math.PI * 2,
+      });
+    }
+
+    const connections: Connection[] = [];
+
+    const updateFormation = () => {
+      const formationName =
+        formationNames[currentFormation % formationNames.length];
+      const formation = formations[formationName];
+      connections.length = 0;
+
+      // Assign particles to formation positions
+      formation.forEach((point, index) => {
+        if (index < particles.length) {
+          const particle = particles[index];
+          particle.targetX = point.x * canvas.width;
+          particle.targetY = point.y * canvas.height;
+          particle.isForming = true;
+          particle.connectionStrength = 1;
+
+          // Create connections
+          point.connections.forEach((targetIndex) => {
+            if (targetIndex < particles.length) {
+              connections.push({
+                from: index,
+                to: targetIndex,
+                strength: 0,
+                active: true,
+              });
+            }
+          });
+        }
+      });
+
+      // Set remaining particles to wander
+      for (let i = formation.length; i < particles.length; i++) {
+        particles[i].isForming = false;
+        particles[i].targetX = Math.random() * canvas.width;
+        particles[i].targetY = Math.random() * canvas.height;
+        particles[i].connectionStrength = 0;
+      }
+    };
+
+    const disperseFormation = () => {
+      particles.forEach((particle) => {
+        particle.isForming = false;
+        particle.targetX = Math.random() * canvas.width;
+        particle.targetY = Math.random() * canvas.height;
+        particle.connectionStrength = 0;
+      });
+
+      connections.forEach((connection) => {
+        connection.active = false;
+      });
+    };
+
+    // Initialize first formation
+    updateFormation();
+
+    const animate = () => {
+      // Check if canvas and context are still valid
+      if (!canvas || !ctx) return;
+
+      // Properly clear the entire canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Reset all canvas states to prevent accumulation
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = "transparent";
+
+      formationTimer += 16; // ~60fps
+
+      // Handle formation transitions
+      if (formationTimer >= formationDuration + transitionDuration) {
+        currentFormation++;
+        updateFormation();
+        formationTimer = 0;
+      } else if (formationTimer >= formationDuration) {
+        // Disperse current formation
+        if (formationTimer === formationDuration + 16) {
+          disperseFormation();
+        }
+      }
+
+      // Update particles
+      particles.forEach((particle) => {
+        const dx = particle.targetX - particle.x;
+        const dy = particle.targetY - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (particle.isForming && distance > 3) {
+          // Smooth movement towards formation
+          particle.x += dx * 0.025;
+          particle.y += dy * 0.025;
+          particle.formationProgress = Math.min(
+            1,
+            particle.formationProgress + 0.02
+          );
+        } else if (!particle.isForming) {
+          // Free floating behavior
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.formationProgress = Math.max(
+            0,
+            particle.formationProgress - 0.015
+          );
+
+          // Boundary handling with smooth bounce
+          if (particle.x < 0 || particle.x > canvas.width) {
+            particle.vx *= -0.8;
+            particle.x = Math.max(0, Math.min(canvas.width, particle.x));
+          }
+          if (particle.y < 0 || particle.y > canvas.height) {
+            particle.vy *= -0.8;
+            particle.y = Math.max(0, Math.min(canvas.height, particle.y));
+          }
+
+          // Gentle attraction to new targets
+          if (distance > 5) {
+            particle.x += dx * 0.002;
+            particle.y += dy * 0.002;
+          }
+
+          // Occasionally pick new targets
+          if (Math.random() < 0.008) {
+            particle.targetX = Math.random() * canvas.width;
+            particle.targetY = Math.random() * canvas.height;
+          }
+        }
+
+        particle.pulsePhase += 0.04;
+      });
+
+      // Update connections
+      connections.forEach((connection) => {
+        if (connection.active) {
+          const fromParticle = particles[connection.from];
+          const toParticle = particles[connection.to];
+
+          if (fromParticle && toParticle) {
+            const dx = toParticle.x - fromParticle.x;
+            const dy = toParticle.y - fromParticle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Strengthen connection as particles get closer to formation
+            const avgProgress =
+              (fromParticle.formationProgress + toParticle.formationProgress) /
+              2;
+            connection.strength = Math.min(
+              1,
+              avgProgress * (250 / Math.max(distance, 40))
+            );
+          }
+        } else {
+          connection.strength = Math.max(0, connection.strength - 0.03);
+        }
+      });
+
+      // Draw connections first (behind particles)
+      connections.forEach((connection) => {
+        if (connection.strength > 0.15) {
+          const fromParticle = particles[connection.from];
+          const toParticle = particles[connection.to];
+
+          if (fromParticle && toParticle) {
+            ctx.save(); // Save context state
+
+            const gradient = ctx.createLinearGradient(
+              fromParticle.x,
+              fromParticle.y,
+              toParticle.x,
+              toParticle.y
+            );
+
+            const alpha = Math.floor(connection.strength * 100);
+            gradient.addColorStop(
+              0,
+              fromParticle.color + alpha.toString(16).padStart(2, "0")
+            );
+            gradient.addColorStop(
+              1,
+              toParticle.color + alpha.toString(16).padStart(2, "0")
+            );
+
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = connection.strength * 1.2;
+            ctx.globalCompositeOperation = "lighter";
+            ctx.globalAlpha = connection.strength * 0.8;
+
+            ctx.beginPath();
+            ctx.moveTo(fromParticle.x, fromParticle.y);
+            ctx.lineTo(toParticle.x, toParticle.y);
+            ctx.stroke();
+
+            ctx.restore(); // Restore context state
+          }
+        }
+      });
+
+      // Draw particles with controlled effects
+      particles.forEach((particle) => {
+        ctx.save(); // Save context state for each particle
+
+        const pulseSize = particle.size + Math.sin(particle.pulsePhase) * 0.3;
+        const alpha = particle.isForming
+          ? 0.8 + Math.sin(particle.pulsePhase) * 0.1
+          : 0.4 + Math.sin(particle.pulsePhase) * 0.1;
+
+        // Draw glow effect for forming particles only
+        if (particle.isForming && particle.formationProgress > 0.5) {
+          ctx.shadowColor = particle.color;
+          ctx.shadowBlur = pulseSize * 2;
+          ctx.globalAlpha = alpha * 0.4;
+
+          ctx.fillStyle = particle.color;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, pulseSize * 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Reset shadow for core particle
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = "transparent";
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = particle.color;
+
+        // Core particle
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, pulseSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Small inner highlight
+        ctx.globalAlpha = alpha * 0.6;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(
+          particle.x - pulseSize * 0.25,
+          particle.y - pulseSize * 0.25,
+          pulseSize * 0.2,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        ctx.restore(); // Restore context state
+      });
+
+      // Special effects for different formations
+      const currentFormationName =
+        formationNames[currentFormation % formationNames.length];
+
+      // Neural network data pulses
+      if (currentFormationName === "neuralNetwork") {
+        connections.forEach((connection) => {
+          if (connection.strength > 0.6 && Math.random() < 0.01) {
+            const fromParticle = particles[connection.from];
+            const toParticle = particles[connection.to];
+
+            if (fromParticle && toParticle) {
+              ctx.save();
+
+              const t = Math.random();
+              const pulseX =
+                fromParticle.x + (toParticle.x - fromParticle.x) * t;
+              const pulseY =
+                fromParticle.y + (toParticle.y - fromParticle.y) * t;
+
+              ctx.fillStyle = "#00ff88";
+              ctx.shadowColor = "#00ff88";
+              ctx.shadowBlur = 4;
+              ctx.globalAlpha = 0.8;
+              ctx.beginPath();
+              ctx.arc(pulseX, pulseY, 1.5, 0, Math.PI * 2);
+              ctx.fill();
+
+              ctx.restore();
+            }
+          }
+        });
+      }
+
+      // Data flow animation
+      if (currentFormationName === "dataFlow") {
+        connections.forEach((connection) => {
+          if (connection.strength > 0.5 && Math.random() < 0.015) {
+            const fromParticle = particles[connection.from];
+            const toParticle = particles[connection.to];
+
+            if (fromParticle && toParticle) {
+              ctx.save();
+
+              const t = 0.2 + Math.random() * 0.6;
+              const flowX =
+                fromParticle.x + (toParticle.x - fromParticle.x) * t;
+              const flowY =
+                fromParticle.y + (toParticle.y - fromParticle.y) * t;
+
+              ctx.fillStyle = "#3b82f6";
+              ctx.shadowColor = "#3b82f6";
+              ctx.shadowBlur = 3;
+              ctx.globalAlpha = 0.7;
+              ctx.beginPath();
+              ctx.arc(flowX, flowY, 1, 0, Math.PI * 2);
+              ctx.fill();
+
+              ctx.restore();
+            }
+          }
+        });
+      }
+
+      // Store the animation frame ID and continue the loop
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    // Start the animation
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      // Cancel animation frame on cleanup
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []); // Empty dependency array ensures this only runs once
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 z-0 pointer-events-none"
+      style={{
+        background:
+          "radial-gradient(circle at 30% 20%, #0f0f23 0%, #0a0a14 50%, #000000 100%)",
+      }}
+    />
+  );
+};
 
 interface Project {
   id: string;
@@ -32,6 +548,12 @@ interface Project {
   tech: string[];
   github?: string;
   demo?: string;
+  article?: string;
+  poster?: string;
+  video?: {
+    url: string;
+    isExternal: boolean;
+  };
   image: string;
   year: string;
   category: "project" | "education" | "experience" | "achievement";
@@ -39,38 +561,93 @@ interface Project {
   impact?: string;
   duration?: string;
   teamSize?: number;
+  soloProject?: boolean;
 }
 
 const projects: Project[] = [
   {
     id: "1",
-    title: "AI-Powered Task Management Platform",
+    title:
+      "AI Tutor System for Personalised Learning and Adaptive Feedback (Multi-Agent System)",
     description:
-      "Revolutionary full-stack application leveraging machine learning for intelligent task prioritization, automated scheduling, and productivity insights. Features real-time collaboration, natural language processing for task creation, and predictive analytics.",
+      "An intelligent tutoring platform designed for Year 6 maths students. It leverages a multi-agent architecture with specialised agents for question generation, hint creation, and adaptive feedback. The system integrates Deep Knowledge Tracing (DKT+) models to track student mastery, detect learning styles, and personalise study plans. Built with FastAPI, PostgreSQL, and a React frontend, it provides adaptive daily practice, weekly reviews, and personalised feedback.",
     tech: [
       "React",
-      "Node.js",
-      "TensorFlow.js",
+      "FastAPI",
       "PostgreSQL",
+      "PyTorch",
+      "DKT+",
+      "Multi-Agent System",
+      "Ollama (Mistral, DeepSeek)",
       "Docker",
-      "AWS",
-      "Socket.io",
     ],
-    github: "#",
-    demo: "#",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800",
-    year: "2024",
+    poster: "AI-Tutor-Report.pdf",
+    video: {
+      url: "https://youtu.be/AH-kctlz2pk",
+      isExternal: true,
+    },
+    image: `${import.meta.env.BASE_URL}images/image.png`,
+    year: "2025",
     category: "project",
     featured: true,
-    impact: "40% productivity increase for beta users",
-    duration: "6 months",
-    teamSize: 4,
+    impact:
+      "Adaptive learning tailored to student strengths and weaknesses in real time",
+    duration: "2 months",
+    soloProject: true,
   },
   {
     id: "2",
+    title: "Google DeepMind Internship",
+    description:
+      "Extended an existing 2D trajectory deconfliction algorithm into 3D space. Implemented conflict detection and resolution in three-dimensional environments, added advanced obstacle avoidance, and evaluated scalability and efficiency compared to the 2D counterpart. Developed custom algorithms for safe and efficient multi-agent path planning in complex 3D environments.",
+    tech: [
+      "Python",
+      "Numpy",
+      "Matplotlib",
+      "PyTorch",
+      "Jupyter",
+      "Pandas",
+      "ipyvolume",
+    ],
+    image:
+      "https://media.licdn.com/dms/image/v2/D4E22AQGOtVk-C88liw/feedshare-shrink_2048_1536/B4EZWoavlgGwAo-/0/1742287343682?e=1760572800&v=beta&t=thqYMVQF9Su6y_nPznyQeVinzid20y8bAX0AvqdQa4Y",
+    article: "https://www.cst.cam.ac.uk/opportunity-great-people-me",
+    video: {
+      url: "animation.mp4",
+      isExternal: false,
+    },
+    poster: "3D-Trajectory-Deconfliction.pdf",
+    year: "2024",
+    category: "experience",
+    impact: "60% path efficiency improvement",
+    duration: "2 months",
+    soloProject: true,
+    featured: true,
+  },
+  {
+    id: "3",
+    title: "Sentimental Product Analysis (E-commerce)",
+    description:
+      "Developed a web application for analysing product sentiment in e-commerce. The platform enables users to manage products, submit and view reviews, and visualise sentiment analysis results. Features include user authentication, product management, and interactive dashboards for admins and viewers.",
+    tech: ["PHP", "MySQL", "Bootstrap", "HTML", "CSS", "JavaScript", "XAMPP"],
+    image: `${import.meta.env.BASE_URL}images/AnalyzeThis.png`,
+    year: "2023",
+    category: "project",
+    featured: true,
+    impact:
+      "Streamlined e-commerce product management with sentiment analysis insights for data-driven decisions",
+    duration: "1 month",
+    soloProject: true,
+    video: {
+      url: "https://youtu.be/p7i85aXAszA",
+      isExternal: true,
+    },
+  },
+  {
+    id: "4",
     title: "Computer Science Graduation",
     description:
-      "Bachelor of Science in Computer Science with Magna Cum Laude honors. Specialized in Artificial Intelligence, Software Engineering, and Distributed Systems. Completed advanced coursework in machine learning, algorithms, and system design.",
+      "Bachelor of Science in Computer Science with First Class honors. Specialised in Artificial Intelligence, Machine Learning, and Software Engineering. Completed advanced coursework in machine learning, algorithms, and system design.",
     tech: [
       "Machine Learning",
       "Algorithms",
@@ -79,77 +656,56 @@ const projects: Project[] = [
       "Database Systems",
       "Computer Networks",
     ],
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800",
-    year: "2024",
+    image:
+      "https://latestlogo.com/wp-content/uploads/2024/02/shield-of-sheffield-hallam-university.png",
+    year: "2025",
     category: "education",
-    impact: "GPA: 3.9/4.0",
-    duration: "4 years",
-  },
-  {
-    id: "3",
-    title: "Dean's List Achievement",
-    description:
-      "Recognized for academic excellence with consistent placement on the Dean's List for outstanding scholastic achievement. Maintained top 5% class ranking throughout final two years.",
-    tech: ["Academic Excellence", "Leadership", "Research"],
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800",
-    year: "2024",
-    category: "achievement",
-    impact: "Top 5% of graduating class",
-  },
-  {
-    id: "4",
-    title: "Real-time Collaborative Platform",
-    description:
-      "Scalable real-time messaging and collaboration platform with end-to-end encryption, file sharing, video conferencing, and advanced security features. Architected to handle 10,000+ concurrent users with sub-100ms latency.",
-    tech: [
-      "React",
-      "Socket.io",
-      "Redis",
-      "WebRTC",
-      "AWS",
-      "Kubernetes",
-      "MongoDB",
-    ],
-    github: "#",
-    demo: "#",
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800",
-    year: "2023",
-    category: "project",
-    featured: true,
-    impact: "10,000+ concurrent users supported",
-    duration: "8 months",
-    teamSize: 6,
+    impact: "First Class Honours (4.0/4.0 GPA)",
+    duration: "3 years",
   },
   {
     id: "5",
-    title: "Senior Software Engineer Intern",
+    title: "The Gym Website",
     description:
-      "Led development of microservices architecture for e-commerce platform at TechCorp. Optimized API performance by 60%, implemented CI/CD pipelines, and mentored junior developers. Contributed to cloud migration strategy.",
-    tech: [
-      "Java",
-      "Spring Boot",
-      "Kubernetes",
-      "AWS",
-      "MongoDB",
-      "Jenkins",
-      "Docker",
-    ],
-    image: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800",
-    year: "2023",
-    category: "experience",
-    impact: "60% API performance improvement",
-    duration: "6 months",
-    teamSize: 12,
+      "Created a modern website for DaBeast Gym, providing membership management, trainer profiles, and online sign-up for new and existing members. Features responsive design and comprehensive gym management functionality.",
+    tech: ["PHP", "MySQL", "Bootstrap", "HTML", "CSS", "JavaScript", "XAMPP"],
+    image: `${import.meta.env.BASE_URL}images/THE GYM.jpg`,
+    year: "2022",
+    category: "project",
+    impact: "Streamlined gym membership and information access for users",
+    duration: "1 month",
+    soloProject: true,
+    video: {
+      url: "https://youtu.be/cYltxHcs0ys",
+      isExternal: true,
+    },
+  },
+  {
+    id: "6",
+    title: "Car Dash NEA Project",
+    description:
+      "Developed a custom Windows Forms application combining the fast-paced mechanics of 'Dashy Crashy' with zombie survival game elements. Features dynamic obstacle generation, progressive difficulty scaling, and resource management systems for an engaging arcade-survival hybrid experience.",
+    tech: ["C#", "Windows Forms", "SQL", "Object-Oriented Programming"],
+    image: `${import.meta.env.BASE_URL}images/Car-Dash.png`,
+    video: {
+      url: "https://www.youtube.com/watch?v=69XcBreeZno&list=PLO9ZXbzwUuk9zv4nGlTZJm_kdqvSj4MW5&index=4",
+      isExternal: true,
+    },
+    year: "2022",
+    category: "project",
+    duration: "2 months",
+    impact: "Demonstrated game development and object-oriented design skills",
+    soloProject: true,
   },
 ];
 
 const skills = [
-  { name: "React/TypeScript", level: 95, icon: Code },
-  { name: "Node.js/Python", level: 90, icon: Terminal },
-  { name: "Machine Learning", level: 85, icon: Cpu },
-  { name: "Cloud Architecture", level: 88, icon: Cloud },
-  { name: "Database Design", level: 92, icon: Database },
-  { name: "DevOps/CI/CD", level: 80, icon: Layers },
+  { name: "Python/FastAPI", level: 92, icon: Terminal },
+  { name: "Machine Learning/AI", level: 88, icon: Cpu },
+  { name: "React/JavaScript", level: 85, icon: Code },
+  { name: "Database Systems", level: 90, icon: Database },
+  { name: "PHP/Web Development", level: 82, icon: Globe },
+  { name: "Docker/DevOps", level: 78, icon: Layers },
 ];
 
 function App() {
@@ -159,7 +715,6 @@ function App() {
   const [activeSection, setActiveSection] = useState("hero");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const heroRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     document.body.classList.remove("theme-dark", "theme-light");
@@ -223,196 +778,6 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
-  // Animated background canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Smaller particles, random group sizes
-    const particleCount = 120;
-    const groupSizes = [6, 5]; // 6 for flower, 5 for fish
-    const colors = [
-      "#3b82f6",
-      "#a78bfa",
-      "#06b6d4",
-      "#f472b6",
-      "#f59e42",
-      "#22d3ee",
-    ];
-
-    type Particle = {
-      x: number;
-      y: number;
-      tx: number;
-      ty: number;
-      vx: number;
-      vy: number;
-      color: string;
-      folded: boolean;
-      group: number;
-      groupSize: number;
-    };
-
-    // Create particles and assign to random groups
-    const particles: Particle[] = [];
-    let group = 0;
-    let i = 0;
-    while (i < particleCount) {
-      const groupSize =
-        groupSizes[Math.floor(Math.random() * groupSizes.length)];
-      for (let j = 0; j < groupSize && i < particleCount; j++, i++) {
-        // Each particle gets a random folded position anywhere on the canvas
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          tx: Math.random() * canvas.width,
-          ty: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          color: colors[i % colors.length],
-          folded: false,
-          group,
-          groupSize,
-        });
-      }
-      group++;
-    }
-
-    function foldGroup(group: number, fold: boolean) {
-      particles.forEach((p) => {
-        if (p.group === group) {
-          p.folded = fold;
-        }
-      });
-    }
-
-    function origamiWave() {
-      for (let g = 0; g < group; g++) {
-        setTimeout(() => foldGroup(g, true), g * 100);
-        setTimeout(() => foldGroup(g, false), g * 100 + 500);
-      }
-    }
-
-    let lastWave = Date.now();
-
-    function drawFlower(
-      ctx: CanvasRenderingContext2D,
-      groupParticles: Particle[]
-    ) {
-      // Draw petals
-      groupParticles.forEach((p, idx) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = 0.7;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      });
-      // Draw center
-      const center = groupParticles[0];
-      ctx.beginPath();
-      ctx.arc(center.tx, center.ty, 8, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
-      ctx.shadowColor = center.color;
-      ctx.shadowBlur = 10;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    function drawFish(
-      ctx: CanvasRenderingContext2D,
-      groupParticles: Particle[]
-    ) {
-      // Body (ellipse)
-      const body = groupParticles[0];
-      ctx.save();
-      ctx.translate(body.tx, body.ty);
-      ctx.rotate(Math.random() * Math.PI * 2);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 14, 7, 0, 0, Math.PI * 2);
-      ctx.fillStyle = body.color;
-      ctx.globalAlpha = 0.8;
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      // Tail (triangle)
-      ctx.beginPath();
-      ctx.moveTo(7, 0);
-      ctx.lineTo(18, -7);
-      ctx.lineTo(18, 7);
-      ctx.closePath();
-      ctx.fillStyle = "#fff";
-      ctx.fill();
-      ctx.restore();
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Move particles
-      particles.forEach((p) => {
-        if (p.folded) {
-          p.x += (p.tx - p.x) * 0.08;
-          p.y += (p.ty - p.y) * 0.08;
-        } else {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        }
-      });
-
-      // Draw animal/flower shapes
-      for (let g = 0; g < group; g++) {
-        const groupParticles = particles.filter((p) => p.group === g);
-        if (groupParticles.length === groupParticles[0]?.groupSize) {
-          if (groupParticles.length === 6) {
-            drawFlower(ctx, groupParticles);
-          } else if (groupParticles.length === 5) {
-            drawFish(ctx, groupParticles);
-          }
-        }
-      }
-
-      // Draw particles (smaller)
-      particles.forEach((p) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 6;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
-      // Trigger origami wave every 3 seconds
-      if (Date.now() - lastWave > 3000) {
-        origamiWave();
-        lastWave = Date.now();
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    const handleResize = () => {
-      if (!canvasRef.current) return;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "project":
@@ -469,8 +834,8 @@ function App() {
         </select>
       </div>
 
-      {/* Quantum Entanglement Particle Canvas */}
-      <canvas ref={canvasRef} className="fixed inset-0 z-0" />
+      {/* ML-Themed Particle Background */}
+      <MLParticleBackground />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
@@ -494,9 +859,14 @@ function App() {
                 </a>
               ))}
             </div>
-            <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-colors duration-300">
-              Resume
-            </button>
+            <a
+              href={`${import.meta.env.BASE_URL}cv/CV.pdf`}
+              download="Michael-Ogunrinde-CV.pdf"
+              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-colors duration-300 inline-flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download My CV
+            </a>
           </div>
         </div>
       </nav>
@@ -525,8 +895,8 @@ function App() {
               {/* Profile Image Container */}
               <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-gray-800 shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
-                  alt="John Doe"
+                  src="https://media.licdn.com/dms/image/v2/D4E03AQGTYi4db1LpYw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1697993129490?e=1760572800&v=beta&t=4cr2p7X6N9qhdWOydp_qN-0ZRs0i1lAwlLFYl8OCZMQ"
+                  alt="Michael Ogunrinde"
                   className="w-full h-full object-cover"
                 />
                 {/* Gradient overlay for depth */}
@@ -534,37 +904,41 @@ function App() {
               </div>
 
               {/* Floating particles around image */}
-              {[...Array(6)].map((_, i) => (
+              {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
                   className="absolute animate-float"
                   style={{
-                    left: `${Math.cos((i * Math.PI) / 3) * 120 + 50}%`,
-                    top: `${Math.sin((i * Math.PI) / 3) * 120 + 50}%`,
-                    animationDelay: `${i * 0.5}s`,
+                    left: `${Math.cos((i * Math.PI) / 4) * 130 + 50}%`,
+                    top: `${Math.sin((i * Math.PI) / 4) * 130 + 50}%`,
+                    animationDelay: `${i * 0.4}s`,
                     transform: "translate(-50%, -50%)",
                   }}
                 >
-                  <div className="w-2 h-2 bg-blue-400 rounded-full opacity-60" />
+                  <div className="w-2 h-2 bg-blue-400 rounded-full opacity-70 shadow-lg shadow-blue-400/50" />
                 </div>
               ))}
             </div>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            John Doe
+            Michael Ogunrinde
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-400 mb-8">
+          <p className="text-xl md:text-2xl text-gray-400 mb-4">
             Full-Stack Developer & Computer Science Graduate
+          </p>
+
+          <p className="text-lg text-blue-400 mb-8 font-medium">
+            Specialising in AI/ML & Modern Web Technologies
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             <span className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm rounded-full text-sm border border-gray-700">
               <MapPin className="inline w-4 h-4 mr-2" />
-              San Francisco, CA
+              Sheffield, UK
             </span>
-            <span className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm rounded-full text-sm border border-gray-700">
+            <span className="px-4 py-2 bg-green-500/20 backdrop-blur-sm rounded-full text-sm border border-green-500/50">
               <Zap className="inline w-4 h-4 mr-2" />
               Available for hire
             </span>
@@ -573,12 +947,12 @@ function App() {
           <div className="flex justify-center gap-4 mb-16">
             <a
               href="#contact"
-              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg shadow-blue-500/25"
             >
               Get In Touch
             </a>
             <a
-              href="#timeline"
+              href="#projects"
               className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105"
             >
               View Projects
@@ -586,13 +960,31 @@ function App() {
           </div>
 
           <div className="flex justify-center gap-6">
-            {[Github, Linkedin, Mail].map((Icon, index) => (
+            {[
+              {
+                icon: Github,
+                href: "https://github.com/MichaelOguns?tab=repositories",
+                label: "GitHub",
+              },
+              {
+                icon: Linkedin,
+                href: "https://www.linkedin.com/in/michael-ayomide-ogunrinde/",
+                label: "LinkedIn",
+              },
+              {
+                icon: Mail,
+                href: "mailto:Michael.Ogunrinde@outlook.com",
+                label: "Email",
+              },
+            ].map(({ icon: Icon, href, label }) => (
               <a
-                key={index}
-                href="#"
-                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110"
+                key={label}
+                href={href}
+                target="_blank"
+                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110 group"
+                aria-label={label}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 group-hover:text-blue-400 transition-colors duration-300" />
               </a>
             ))}
           </div>
@@ -620,29 +1012,30 @@ function App() {
               <p className="text-gray-400 mb-6 leading-relaxed">
                 I'm a passionate full-stack developer with a recent Computer
                 Science degree and a strong foundation in modern web
-                technologies. My journey in tech has been driven by curiosity
-                and a desire to create meaningful solutions that make a
-                difference.
+                technologies and machine learning. My journey in tech has been
+                driven by curiosity and a desire to create intelligent solutions
+                that make a difference.
               </p>
               <p className="text-gray-400 mb-8 leading-relaxed">
-                With expertise spanning from front-end frameworks to cloud
-                architecture, I bring a holistic approach to software
-                development. I thrive in collaborative environments and am
-                always eager to tackle new challenges that push the boundaries
-                of what's possible.
+                With expertise spanning from front-end frameworks to AI/ML
+                systems, and backend frameworks. I bring a balanced approach to
+                software development, machine learning engineering, data
+                sceince... I thrive in collaborative environments and am always
+                eager to tackle new challenges that push the boundaries of
+                what's possible with technology.
               </p>
               <div className="grid grid-cols-2 gap-6">
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-blue-500/50 transition-colors duration-300">
                   <div className="text-3xl font-bold text-blue-400 mb-2">
-                    4+
+                    3+
                   </div>
                   <div className="text-sm text-gray-400">
                     Years of Experience
                   </div>
                 </div>
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-green-500/50 transition-colors duration-300">
                   <div className="text-3xl font-bold text-green-400 mb-2">
-                    15+
+                    10+
                   </div>
                   <div className="text-sm text-gray-400">
                     Projects Completed
@@ -668,9 +1061,9 @@ function App() {
                       (Icon, index) => (
                         <div
                           key={index}
-                          className="aspect-square bg-gray-900/50 rounded-xl flex items-center justify-center hover:bg-gray-900/80 transition-colors duration-300"
+                          className="aspect-square bg-gray-900/50 rounded-xl flex items-center justify-center hover:bg-gray-900/80 transition-all duration-300 group"
                         >
-                          <Icon className="w-8 h-8 text-blue-400" />
+                          <Icon className="w-8 h-8 text-blue-400 group-hover:text-cyan-400 transition-colors duration-300" />
                         </div>
                       )
                     )}
@@ -683,7 +1076,7 @@ function App() {
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-20 relative z-10 bg-gray-900/50">
+      <section id="skills" className="py-20 relative z-10 bg-gray-900/30">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-16">
             Technical Skills
@@ -702,15 +1095,15 @@ function App() {
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 group">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 group hover:shadow-xl hover:shadow-blue-500/10">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors duration-300">
-                        <skill.icon className="w-5 h-5 text-blue-400" />
+                        <skill.icon className="w-5 h-5 text-blue-400 group-hover:text-cyan-400 transition-colors duration-300" />
                       </div>
                       <h3 className="font-semibold">{skill.name}</h3>
                     </div>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-gray-400 group-hover:text-blue-400 transition-colors duration-300">
                       {skill.level}%
                     </span>
                   </div>
@@ -733,7 +1126,7 @@ function App() {
       </section>
 
       {/* Timeline Section */}
-      <section id="timeline" className="py-20 relative z-10">
+      <section id="projects" className="py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-16">
             Projects & Experience
@@ -835,7 +1228,8 @@ function App() {
                         {/* Stats Grid */}
                         {(project.impact ||
                           project.duration ||
-                          project.teamSize) && (
+                          project.teamSize ||
+                          project.soloProject) && (
                           <div className="grid grid-cols-3 gap-4 mb-6">
                             {project.impact && (
                               <div className="text-center p-3 bg-gray-900/50 rounded-lg">
@@ -870,6 +1264,17 @@ function App() {
                                 </div>
                               </div>
                             )}
+                            {project.soloProject && (
+                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
+                                <User className="w-5 h-5 text-orange-400 mx-auto mb-1" />
+                                <div className="text-xs text-gray-400">
+                                  Solo
+                                </div>
+                                <div className="text-sm font-semibold text-orange-400">
+                                  Dev
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
@@ -878,7 +1283,7 @@ function App() {
                           {project.tech.slice(0, 5).map((tech) => (
                             <span
                               key={tech}
-                              className="px-3 py-1 text-xs bg-gray-900/50 rounded-full text-gray-300 border border-gray-700"
+                              className="px-3 py-1 text-xs bg-gray-900/50 rounded-full text-gray-300 border border-gray-700 hover:border-blue-500/50 transition-colors duration-300"
                             >
                               {tech}
                             </span>
@@ -891,24 +1296,71 @@ function App() {
                         </div>
 
                         {/* Actions */}
-                        {(project.github || project.demo) && (
+                        {(project.github ||
+                          project.demo ||
+                          project.article ||
+                          project.poster ||
+                          project.video) && (
                           <div className="flex gap-4">
                             {project.github && (
                               <a
                                 href={project.github}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 rounded-lg hover:bg-gray-900/80 transition-all duration-300 text-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 rounded-lg hover:bg-gray-900/80 transition-all duration-300 text-sm group"
                               >
-                                <Github className="w-4 h-4" />
+                                <Github className="w-4 h-4 group-hover:text-blue-400 transition-colors duration-300" />
                                 View Code
                               </a>
                             )}
                             {project.demo && (
                               <a
                                 href={project.demo}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/50 rounded-lg hover:bg-blue-500/30 transition-all duration-300 text-sm"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/50 rounded-lg hover:bg-blue-500/30 transition-all duration-300 text-sm group"
                               >
-                                <ExternalLink className="w-4 h-4" />
+                                <ExternalLink className="w-4 h-4 group-hover:text-cyan-400 transition-colors duration-300" />
                                 Live Demo
+                              </a>
+                            )}
+                            {project.article && (
+                              <a
+                                href={project.article}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-lg hover:bg-green-500/30 transition-all duration-300 text-sm group"
+                              >
+                                <FileText className="w-4 h-4 group-hover:text-green-400 transition-colors duration-300" />
+                                Read Article
+                              </a>
+                            )}
+                            {project.poster && (
+                              <a
+                                href={`${import.meta.env.BASE_URL}posters/${
+                                  project.poster
+                                }`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 transition-all duration-300 text-sm group"
+                              >
+                                <FileImage className="w-4 h-4 group-hover:text-purple-400 transition-colors duration-300" />
+                                View Poster
+                              </a>
+                            )}
+                            {project.video && (
+                              <a
+                                href={
+                                  project.video.isExternal
+                                    ? project.video.url
+                                    : `${import.meta.env.BASE_URL}videos/${
+                                        project.video.url
+                                      }`
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition-all duration-300 text-sm group"
+                              >
+                                <Play className="w-4 h-4 group-hover:text-red-400 transition-colors duration-300" />
+                                Watch Video
                               </a>
                             )}
                           </div>
@@ -924,41 +1376,58 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 relative z-10 bg-gray-900/50">
+      <section id="contact" className="py-20 relative z-10 bg-gray-900/30">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-6">Let's Connect</h2>
           <p className="text-xl text-gray-400 mb-12">
             I'm always interested in hearing about new opportunities and
-            exciting projects.
+            exciting projects involving AI, ML, and cutting-edge web
+            technologies.
           </p>
 
           <div className="flex justify-center gap-4 mb-12">
             <a
-              href="mailto:john@example.com"
-              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2"
+              href="mailto:Michael.Ogunrinde@outlook.com"
+              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-lg shadow-blue-500/25"
             >
               <Mail className="w-5 h-5" />
               Get In Touch
             </a>
-            <button className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105 flex items-center gap-2">
+            <a
+              href={`${import.meta.env.BASE_URL}cv/CV.pdf`}
+              download="Michael-Ogunrinde-CV.pdf"
+              className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            >
               <Download className="w-5 h-5" />
-              Download Resume
-            </button>
+              Download CV
+            </a>
           </div>
 
           <div className="flex justify-center gap-6">
             {[
-              { icon: Github, href: "#", label: "GitHub" },
-              { icon: Linkedin, href: "#", label: "LinkedIn" },
-              { icon: Mail, href: "mailto:john@example.com", label: "Email" },
+              {
+                icon: Github,
+                href: "https://github.com/MichaelOguns?tab=repositories",
+                label: "GitHub",
+              },
+              {
+                icon: Linkedin,
+                href: "https://www.linkedin.com/in/michael-ayomide-ogunrinde/",
+                label: "LinkedIn",
+              },
+              {
+                icon: Mail,
+                href: "mailto:Michael.Ogunrinde@outlook.com",
+                label: "Email",
+              },
             ].map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
                 href={href}
-                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110"
+                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110 group"
                 aria-label={label}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 group-hover:text-blue-400 transition-colors duration-300" />
               </a>
             ))}
           </div>
@@ -969,7 +1438,11 @@ function App() {
       <footer className="py-8 border-t border-gray-800 relative z-10">
         <div className="max-w-7xl mx-auto px-6 text-center text-gray-400 text-sm">
           <p>
-            © 2024 John Doe. Built with React, TypeScript, and Tailwind CSS.
+            © 2025 Michael Ogunrinde. Built with React, TypeScript, and Tailwind
+            CSS.
+          </p>
+          <p className="mt-2 text-xs">
+            Background animations powered by intelligent particle systems
           </p>
         </div>
       </footer>
@@ -999,7 +1472,7 @@ function App() {
             : "opacity-0 translate-y-10 pointer-events-none"
         }`}
       >
-        <ChevronDown className="w-5 h-5 transform rotate-180" />
+        <ChevronDown className="w-5 h-5 transform rotate-180" />a
       </button>
     </div>
   );
