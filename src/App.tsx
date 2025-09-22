@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   Github,
@@ -8,28 +9,174 @@ import {
   Code,
   Briefcase,
   GraduationCap,
-  Star,
   Download,
   MapPin,
-  Calendar,
   Award,
-  Users,
   User,
   FileText,
-  FileImage,
   Play,
-  Zap,
   Target,
-  Layers,
   Globe,
   Cpu,
   Database,
-  Cloud,
   Terminal,
+  ArrowRight,
 } from "lucide-react";
 
-// ML-Themed Particle Background Component
-const MLParticleBackground: React.FC = () => {
+// Completely self-contained loading typewriter with button
+const LoadingTypewriter: React.FC<{
+  onEnterPortfolio: () => void;
+  theme: (typeof themes)[keyof typeof themes];
+}> = ({ onEnterPortfolio, theme }) => {
+  const [displayText, setDisplayText] = useState({
+    name1: "",
+    name2: "",
+    title: "",
+    showTitle: false,
+    showButton: false,
+    completed: false,
+  });
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let currentStep = 0;
+
+    const steps = [
+      // Type "Michael" (7 characters)
+      ...Array.from("Michael").map((char) => () => {
+        setDisplayText((prev) => ({ ...prev, name1: prev.name1 + char }));
+      }),
+      // Pause after "Michael"
+      () => { },
+      // Type "Ogunrinde" (9 characters)
+      ...Array.from("Ogunrinde").map((char) => () => {
+        setDisplayText((prev) => ({ ...prev, name2: prev.name2 + char }));
+      }),
+      // Show title area and pause
+      () => {
+        setDisplayText((prev) => ({ ...prev, showTitle: true }));
+      },
+      // Type title (33 characters)
+      ...Array.from("AI Engineer & Full-Stack Developer").map((char) => () => {
+        setDisplayText((prev) => ({ ...prev, title: prev.title + char }));
+      }),
+      // Show button
+      () => {
+        setDisplayText((prev) => ({
+          ...prev,
+          showButton: true,
+          completed: true,
+        }));
+      },
+    ];
+
+    const executeStep = () => {
+      if (currentStep < steps.length) {
+        steps[currentStep]();
+        currentStep++;
+
+        // Fast but visible typewriter effect
+        let delay = 50; // Very fast typing
+        if (currentStep === 8) delay = 150; // Brief pause after "Michael"
+        else if (currentStep === 18) delay = 200; // Brief pause before title
+        else if (currentStep > 18 && currentStep < steps.length - 1)
+          delay = 40; // Super fast for title
+        else if (currentStep === steps.length - 1) delay = 200; // Brief pause before button
+
+        timeoutId = setTimeout(executeStep, delay);
+      }
+    };
+
+    // Start immediately
+    timeoutId = setTimeout(executeStep, 300);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []); // Empty dependency array - runs once only, never re-runs
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-6xl md:text-8xl font-bold mb-4 min-h-32 md:min-h-40">
+          <div
+            className={`bg-gradient-to-r ${theme.intro.text} bg-clip-text text-transparent`}
+          >
+            <div>
+              {displayText.name1}
+              {displayText.name1.length < 7 &&
+                displayText.name2.length === 0 && (
+                  <span className={`animate-pulse ${theme.intro.accent}`}>
+                    |
+                  </span>
+                )}
+            </div>
+            <div>
+              {displayText.name2}
+              {displayText.name1.length === 7 &&
+                displayText.name2.length < 9 &&
+                !displayText.showTitle && (
+                  <span className={`animate-pulse ${theme.intro.accent}`}>
+                    |
+                  </span>
+                )}
+            </div>
+          </div>
+        </h1>
+
+        {displayText.showTitle && (
+          <p
+            className={`text-xl md:text-2xl ${theme.intro.accent} font-light min-h-8`}
+          >
+            {displayText.title}
+            {displayText.title.length < 33 && !displayText.completed && (
+              <span className={`animate-pulse ${theme.intro.accent}`}>|</span>
+            )}
+          </p>
+        )}
+      </div>
+
+      {/* Button appears internally with smooth animation */}
+      {displayText.showButton && (
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 0.6,
+            ease: [0.4, 0, 0.2, 1],
+            delay: 0.2,
+          }}
+        >
+          <motion.p
+            className={`${theme.intro.accent} text-sm mb-6 opacity-75`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.75 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+          >
+            Ready to explore my work?
+          </motion.p>
+          <motion.button
+            onClick={onEnterPortfolio}
+            className={`group px-10 py-4 bg-gradient-to-r ${theme.intro.button} text-white rounded-full font-medium transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-lg inline-flex items-center gap-3`}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4)",
+            }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <span>Enter Portfolio</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </motion.button>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+// Hero-specific programming background component
+const HeroProgrammingBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
 
@@ -40,10 +187,173 @@ const MLParticleBackground: React.FC = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Clear any existing animation
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
+    const resizeCanvas = () => {
+      const heroSection = canvas.parentElement;
+      if (heroSection) {
+        canvas.width = heroSection.offsetWidth;
+        canvas.height = heroSection.offsetHeight;
+      }
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // Programming-related code snippets
+    const codeSnippets = [
+      "const developer = 'Michael Ogunrinde';",
+      "function innovate() {",
+      "  return creative_solutions;",
+      "}",
+      "class AIResearcher {",
+      "  constructor() {",
+      "    this.passion = 'unlimited';",
+      "    this.skills = ['ML', 'AI', 'Full-Stack'];",
+      "  }",
+      "}",
+      "import { experience } from './google-deepmind';",
+      "const achievements = ['First Class Honours'];",
+      "// Building intelligent systems",
+      "export default innovation;",
+      "async function solve(challenge) {",
+      "  const solution = await research();",
+      "  return breakthrough;",
+      "}",
+      "machine_learning = True",
+      "def create_impact():",
+      "    return game_changing_solutions",
+      "SELECT success FROM opportunities",
+      "WHERE passion = 'technology';",
+      "git commit -m 'Ready for next challenge'",
+      "docker run --name future-tech",
+      "npm install --save expertise",
+      "pip install intelligence",
+    ];
+
+    const typingElements: Array<{
+      x: number;
+      y: number;
+      text: string;
+      currentIndex: number;
+      speed: number;
+      opacity: number;
+      fontSize: number;
+      color: string;
+      isComplete: boolean;
+      pauseTime: number;
+    }> = [];
+
+    // Create more visible typing elements
+    for (let i = 0; i < 12; i++) {
+      typingElements.push({
+        x: Math.random() * (canvas.width - 400),
+        y: Math.random() * (canvas.height - 100) + 50,
+        text: codeSnippets[Math.floor(Math.random() * codeSnippets.length)],
+        currentIndex: 0,
+        speed: Math.random() * 2 + 1.5, // Slightly faster typing
+        opacity: Math.random() * 0.25 + 0.15, // More visible (15-40% opacity)
+        fontSize: Math.random() * 6 + 14, // Larger text
+        color: [
+          "#3b82f6",
+          "#6366f1",
+          "#8b5cf6",
+          "#06b6d4",
+          "#10b981",
+          "#f59e0b",
+        ][Math.floor(Math.random() * 6)],
+        isComplete: false,
+        pauseTime: 0,
+      });
     }
+
+    let lastTime = 0;
+
+    const animate = (currentTime: number) => {
+      if (!canvas || !ctx) return;
+
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw typing elements
+      typingElements.forEach((element) => {
+        if (!element.isComplete) {
+          element.currentIndex += (element.speed * deltaTime) / 1000;
+
+          if (element.currentIndex >= element.text.length) {
+            element.isComplete = true;
+            element.pauseTime = currentTime + 2000 + Math.random() * 3000; // Pause 2-5 seconds
+          }
+        } else {
+          if (currentTime > element.pauseTime) {
+            element.text =
+              codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+            element.currentIndex = 0;
+            element.isComplete = false;
+            element.x = Math.random() * (canvas.width - 400);
+            element.y = Math.random() * (canvas.height - 100) + 50;
+            element.opacity = Math.random() * 0.25 + 0.15;
+          }
+        }
+
+        // Draw the text with better visibility
+        ctx.save();
+        ctx.globalAlpha = element.opacity;
+        ctx.fillStyle = element.color;
+        ctx.font = `500 ${element.fontSize}px 'JetBrains Mono', 'Fira Code', 'Consolas', monospace`;
+
+        const displayText = element.text.substring(
+          0,
+          Math.floor(element.currentIndex)
+        );
+        ctx.fillText(displayText, element.x, element.y);
+
+        // Draw blinking cursor
+        if (!element.isComplete && Math.floor(currentTime / 600) % 2 === 0) {
+          const textWidth = ctx.measureText(displayText).width;
+          ctx.fillRect(
+            element.x + textWidth,
+            element.y - element.fontSize,
+            2,
+            element.fontSize
+          );
+        }
+
+        ctx.restore();
+      });
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+    />
+  );
+};
+
+// Clean background for other sections
+const ProfessionalBackground: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameRef = useRef<number>();
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -53,491 +363,142 @@ const MLParticleBackground: React.FC = () => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Particle system configuration
-    const particleCount = 120;
-    const colors = [
-      "#3b82f6", // Blue
-      "#06b6d4", // Cyan
-      "#8b5cf6", // Purple
-      "#10b981", // Emerald
-      "#f59e0b", // Amber
-      "#ef4444", // Red
-      "#ffffff", // White
+    // Programming-related code snippets and elements
+    const codeSnippets = [
+      "const developer = 'Michael';",
+      "function innovate() {",
+      "  return solutions;",
+      "}",
+      "class AIResearcher {",
+      "  constructor() {",
+      "    this.passion = true;",
+      "  }",
+      "}",
+      "import { skills } from './experience';",
+      "const projects = [];",
+      "// Building the future",
+      "export default creativity;",
+      "async function solve(problem) {",
+      "  const solution = await think();",
+      "  return solution;",
+      "}",
+      "machine_learning = True",
+      "def create_impact():",
+      "    return innovation",
+      "SELECT * FROM opportunities;",
+      "git commit -m 'Professional growth'",
+      "docker run --name success",
+      "npm install expertise",
     ];
 
-    interface Particle {
+    const typingElements: Array<{
       x: number;
       y: number;
-      targetX: number;
-      targetY: number;
-      originalX: number;
-      originalY: number;
-      vx: number;
-      vy: number;
+      text: string;
+      currentIndex: number;
+      speed: number;
+      opacity: number;
+      fontSize: number;
       color: string;
-      size: number;
-      isForming: boolean;
-      formationProgress: number;
-      connectionStrength: number;
-      pulsePhase: number;
-    }
+      isComplete: boolean;
+      pauseTime: number;
+    }> = [];
 
-    interface Connection {
-      from: number;
-      to: number;
-      strength: number;
-      active: boolean;
-    }
-
-    // Robot/Neural Network formation patterns
-    const formations = {
-      robot: [
-        // Head (rectangle-ish)
-        { x: 0.5, y: 0.25, connections: [1, 2, 3, 4] },
-        { x: 0.45, y: 0.2, connections: [0, 2] },
-        { x: 0.55, y: 0.2, connections: [0, 1] },
-        { x: 0.45, y: 0.3, connections: [0, 4] },
-        { x: 0.55, y: 0.3, connections: [0, 3] },
-        // Body center
-        { x: 0.5, y: 0.45, connections: [0, 6, 7, 8, 9] },
-        { x: 0.42, y: 0.4, connections: [5, 7] },
-        { x: 0.58, y: 0.4, connections: [5, 6] },
-        { x: 0.42, y: 0.5, connections: [5, 9] },
-        { x: 0.58, y: 0.5, connections: [5, 8] },
-        // Arms
-        { x: 0.3, y: 0.45, connections: [6, 11] },
-        { x: 0.2, y: 0.52, connections: [10] },
-        { x: 0.7, y: 0.45, connections: [7, 13] },
-        { x: 0.8, y: 0.52, connections: [12] },
-        // Legs
-        { x: 0.46, y: 0.65, connections: [8, 15] },
-        { x: 0.44, y: 0.8, connections: [14] },
-        { x: 0.54, y: 0.65, connections: [9, 17] },
-        { x: 0.56, y: 0.8, connections: [16] },
-      ],
-      neuralNetwork: [
-        // Input layer
-        { x: 0.15, y: 0.25, connections: [3, 4, 5, 6] },
-        { x: 0.15, y: 0.4, connections: [3, 4, 5, 6] },
-        { x: 0.15, y: 0.55, connections: [3, 4, 5, 6] },
-        // Hidden layer 1
-        { x: 0.35, y: 0.2, connections: [7, 8, 9, 10] },
-        { x: 0.35, y: 0.35, connections: [7, 8, 9, 10] },
-        { x: 0.35, y: 0.5, connections: [7, 8, 9, 10] },
-        { x: 0.35, y: 0.65, connections: [7, 8, 9, 10] },
-        // Hidden layer 2
-        { x: 0.55, y: 0.25, connections: [11, 12] },
-        { x: 0.55, y: 0.375, connections: [11, 12] },
-        { x: 0.55, y: 0.5, connections: [11, 12] },
-        { x: 0.55, y: 0.625, connections: [11, 12] },
-        // Output layer
-        { x: 0.75, y: 0.35, connections: [] },
-        { x: 0.75, y: 0.55, connections: [] },
-      ],
-      dataFlow: [
-        // Data sources
-        { x: 0.1, y: 0.3, connections: [3, 4] },
-        { x: 0.1, y: 0.5, connections: [3, 4, 5] },
-        { x: 0.1, y: 0.7, connections: [4, 5] },
-        // Processing layer
-        { x: 0.3, y: 0.25, connections: [6, 7] },
-        { x: 0.3, y: 0.5, connections: [6, 7, 8] },
-        { x: 0.3, y: 0.75, connections: [7, 8] },
-        // Analysis nodes
-        { x: 0.5, y: 0.2, connections: [9, 10] },
-        { x: 0.5, y: 0.5, connections: [9, 10, 11] },
-        { x: 0.5, y: 0.8, connections: [10, 11] },
-        // Decision layer
-        { x: 0.7, y: 0.35, connections: [12] },
-        { x: 0.7, y: 0.55, connections: [12] },
-        { x: 0.7, y: 0.65, connections: [12] },
-        // Output
-        { x: 0.9, y: 0.5, connections: [] },
-      ],
-      molecularStructure: [
-        // Central atom
-        { x: 0.5, y: 0.5, connections: [1, 2, 3, 4, 5, 6] },
-        // Ring structure
-        { x: 0.6, y: 0.4, connections: [0, 2, 7] },
-        { x: 0.65, y: 0.55, connections: [0, 1, 3] },
-        { x: 0.5, y: 0.7, connections: [0, 2, 4] },
-        { x: 0.35, y: 0.55, connections: [0, 3, 5] },
-        { x: 0.4, y: 0.4, connections: [0, 4, 6] },
-        { x: 0.5, y: 0.3, connections: [0, 5, 1] },
-        // Outer connections
-        { x: 0.75, y: 0.3, connections: [1] },
-        { x: 0.8, y: 0.65, connections: [2] },
-        { x: 0.5, y: 0.85, connections: [3] },
-        { x: 0.2, y: 0.65, connections: [4] },
-        { x: 0.25, y: 0.3, connections: [5] },
-        { x: 0.5, y: 0.15, connections: [6] },
-      ],
-    };
-
-    const formationNames = Object.keys(
-      formations
-    ) as (keyof typeof formations)[];
-    let currentFormation = 0;
-    let formationTimer = 0;
-    const formationDuration = 6000; // 6 seconds per formation
-    const transitionDuration = 2000; // 2 seconds transition
-
-    // Initialize particles
-    const particles: Particle[] = [];
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        targetX: Math.random() * canvas.width,
-        targetY: Math.random() * canvas.height,
-        originalX: Math.random() * canvas.width,
-        originalY: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        size: Math.random() * 2.5 + 1,
-        isForming: false,
-        formationProgress: 0,
-        connectionStrength: 0,
-        pulsePhase: Math.random() * Math.PI * 2,
+    // Create typing elements
+    for (let i = 0; i < 8; i++) {
+      typingElements.push({
+        x: Math.random() * (canvas.width - 300),
+        y: Math.random() * (canvas.height - 100),
+        text: codeSnippets[Math.floor(Math.random() * codeSnippets.length)],
+        currentIndex: 0,
+        speed: Math.random() * 3 + 1, // Characters per second
+        opacity: Math.random() * 0.12 + 0.03,
+        fontSize: Math.random() * 4 + 12,
+        color: ["#3b82f6", "#6366f1", "#8b5cf6", "#06b6d4", "#10b981"][
+          Math.floor(Math.random() * 5)
+        ],
+        isComplete: false,
+        pauseTime: 0,
       });
     }
 
-    const connections: Connection[] = [];
+    let lastTime = 0;
 
-    const updateFormation = () => {
-      const formationName =
-        formationNames[currentFormation % formationNames.length];
-      const formation = formations[formationName];
-      connections.length = 0;
-
-      // Assign particles to formation positions
-      formation.forEach((point, index) => {
-        if (index < particles.length) {
-          const particle = particles[index];
-          particle.targetX = point.x * canvas.width;
-          particle.targetY = point.y * canvas.height;
-          particle.isForming = true;
-          particle.connectionStrength = 1;
-
-          // Create connections
-          point.connections.forEach((targetIndex) => {
-            if (targetIndex < particles.length) {
-              connections.push({
-                from: index,
-                to: targetIndex,
-                strength: 0,
-                active: true,
-              });
-            }
-          });
-        }
-      });
-
-      // Set remaining particles to wander
-      for (let i = formation.length; i < particles.length; i++) {
-        particles[i].isForming = false;
-        particles[i].targetX = Math.random() * canvas.width;
-        particles[i].targetY = Math.random() * canvas.height;
-        particles[i].connectionStrength = 0;
-      }
-    };
-
-    const disperseFormation = () => {
-      particles.forEach((particle) => {
-        particle.isForming = false;
-        particle.targetX = Math.random() * canvas.width;
-        particle.targetY = Math.random() * canvas.height;
-        particle.connectionStrength = 0;
-      });
-
-      connections.forEach((connection) => {
-        connection.active = false;
-      });
-    };
-
-    // Initialize first formation
-    updateFormation();
-
-    const animate = () => {
-      // Check if canvas and context are still valid
+    const animate = (currentTime: number) => {
       if (!canvas || !ctx) return;
 
-      // Properly clear the entire canvas
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Reset all canvas states to prevent accumulation
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-      ctx.shadowBlur = 0;
-      ctx.shadowColor = "transparent";
+      // Draw typing elements
+      typingElements.forEach((element) => {
+        if (!element.isComplete) {
+          // Update typing progress
+          element.currentIndex += (element.speed * deltaTime) / 1000;
 
-      formationTimer += 16; // ~60fps
-
-      // Handle formation transitions
-      if (formationTimer >= formationDuration + transitionDuration) {
-        currentFormation++;
-        updateFormation();
-        formationTimer = 0;
-      } else if (formationTimer >= formationDuration) {
-        // Disperse current formation
-        if (formationTimer === formationDuration + 16) {
-          disperseFormation();
-        }
-      }
-
-      // Update particles
-      particles.forEach((particle) => {
-        const dx = particle.targetX - particle.x;
-        const dy = particle.targetY - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (particle.isForming && distance > 3) {
-          // Smooth movement towards formation
-          particle.x += dx * 0.025;
-          particle.y += dy * 0.025;
-          particle.formationProgress = Math.min(
-            1,
-            particle.formationProgress + 0.02
-          );
-        } else if (!particle.isForming) {
-          // Free floating behavior
-          particle.x += particle.vx;
-          particle.y += particle.vy;
-          particle.formationProgress = Math.max(
-            0,
-            particle.formationProgress - 0.015
-          );
-
-          // Boundary handling with smooth bounce
-          if (particle.x < 0 || particle.x > canvas.width) {
-            particle.vx *= -0.8;
-            particle.x = Math.max(0, Math.min(canvas.width, particle.x));
-          }
-          if (particle.y < 0 || particle.y > canvas.height) {
-            particle.vy *= -0.8;
-            particle.y = Math.max(0, Math.min(canvas.height, particle.y));
-          }
-
-          // Gentle attraction to new targets
-          if (distance > 5) {
-            particle.x += dx * 0.002;
-            particle.y += dy * 0.002;
-          }
-
-          // Occasionally pick new targets
-          if (Math.random() < 0.008) {
-            particle.targetX = Math.random() * canvas.width;
-            particle.targetY = Math.random() * canvas.height;
-          }
-        }
-
-        particle.pulsePhase += 0.04;
-      });
-
-      // Update connections
-      connections.forEach((connection) => {
-        if (connection.active) {
-          const fromParticle = particles[connection.from];
-          const toParticle = particles[connection.to];
-
-          if (fromParticle && toParticle) {
-            const dx = toParticle.x - fromParticle.x;
-            const dy = toParticle.y - fromParticle.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            // Strengthen connection as particles get closer to formation
-            const avgProgress =
-              (fromParticle.formationProgress + toParticle.formationProgress) /
-              2;
-            connection.strength = Math.min(
-              1,
-              avgProgress * (250 / Math.max(distance, 40))
-            );
+          if (element.currentIndex >= element.text.length) {
+            element.isComplete = true;
+            element.pauseTime = currentTime + 3000 + Math.random() * 2000; // Pause for 3-5 seconds
           }
         } else {
-          connection.strength = Math.max(0, connection.strength - 0.03);
-        }
-      });
-
-      // Draw connections first (behind particles)
-      connections.forEach((connection) => {
-        if (connection.strength > 0.15) {
-          const fromParticle = particles[connection.from];
-          const toParticle = particles[connection.to];
-
-          if (fromParticle && toParticle) {
-            ctx.save(); // Save context state
-
-            const gradient = ctx.createLinearGradient(
-              fromParticle.x,
-              fromParticle.y,
-              toParticle.x,
-              toParticle.y
-            );
-
-            const alpha = Math.floor(connection.strength * 100);
-            gradient.addColorStop(
-              0,
-              fromParticle.color + alpha.toString(16).padStart(2, "0")
-            );
-            gradient.addColorStop(
-              1,
-              toParticle.color + alpha.toString(16).padStart(2, "0")
-            );
-
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = connection.strength * 1.2;
-            ctx.globalCompositeOperation = "lighter";
-            ctx.globalAlpha = connection.strength * 0.8;
-
-            ctx.beginPath();
-            ctx.moveTo(fromParticle.x, fromParticle.y);
-            ctx.lineTo(toParticle.x, toParticle.y);
-            ctx.stroke();
-
-            ctx.restore(); // Restore context state
+          // Check if it's time to restart
+          if (currentTime > element.pauseTime) {
+            element.text =
+              codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+            element.currentIndex = 0;
+            element.isComplete = false;
+            element.x = Math.random() * (canvas.width - 300);
+            element.y = Math.random() * (canvas.height - 100);
+            element.opacity = Math.random() * 0.12 + 0.03;
           }
         }
-      });
 
-      // Draw particles with controlled effects
-      particles.forEach((particle) => {
-        ctx.save(); // Save context state for each particle
+        // Draw the text
+        ctx.save();
+        ctx.globalAlpha = element.opacity;
+        ctx.fillStyle = element.color;
+        ctx.font = `${element.fontSize}px 'JetBrains Mono', 'Fira Code', 'Consolas', monospace`;
 
-        const pulseSize = particle.size + Math.sin(particle.pulsePhase) * 0.3;
-        const alpha = particle.isForming
-          ? 0.8 + Math.sin(particle.pulsePhase) * 0.1
-          : 0.4 + Math.sin(particle.pulsePhase) * 0.1;
-
-        // Draw glow effect for forming particles only
-        if (particle.isForming && particle.formationProgress > 0.5) {
-          ctx.shadowColor = particle.color;
-          ctx.shadowBlur = pulseSize * 2;
-          ctx.globalAlpha = alpha * 0.4;
-
-          ctx.fillStyle = particle.color;
-          ctx.beginPath();
-          ctx.arc(particle.x, particle.y, pulseSize * 1.8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Reset shadow for core particle
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = "transparent";
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = particle.color;
-
-        // Core particle
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, pulseSize, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Small inner highlight
-        ctx.globalAlpha = alpha * 0.6;
-        ctx.fillStyle = "#ffffff";
-        ctx.beginPath();
-        ctx.arc(
-          particle.x - pulseSize * 0.25,
-          particle.y - pulseSize * 0.25,
-          pulseSize * 0.2,
+        const displayText = element.text.substring(
           0,
-          Math.PI * 2
+          Math.floor(element.currentIndex)
         );
-        ctx.fill();
+        ctx.fillText(displayText, element.x, element.y);
 
-        ctx.restore(); // Restore context state
+        // Draw cursor if still typing
+        if (!element.isComplete && Math.floor(currentTime / 500) % 2 === 0) {
+          const textWidth = ctx.measureText(displayText).width;
+          ctx.fillRect(
+            element.x + textWidth,
+            element.y - element.fontSize,
+            2,
+            element.fontSize
+          );
+        }
+
+        ctx.restore();
       });
 
-      // Special effects for different formations
-      const currentFormationName =
-        formationNames[currentFormation % formationNames.length];
-
-      // Neural network data pulses
-      if (currentFormationName === "neuralNetwork") {
-        connections.forEach((connection) => {
-          if (connection.strength > 0.6 && Math.random() < 0.01) {
-            const fromParticle = particles[connection.from];
-            const toParticle = particles[connection.to];
-
-            if (fromParticle && toParticle) {
-              ctx.save();
-
-              const t = Math.random();
-              const pulseX =
-                fromParticle.x + (toParticle.x - fromParticle.x) * t;
-              const pulseY =
-                fromParticle.y + (toParticle.y - fromParticle.y) * t;
-
-              ctx.fillStyle = "#00ff88";
-              ctx.shadowColor = "#00ff88";
-              ctx.shadowBlur = 4;
-              ctx.globalAlpha = 0.8;
-              ctx.beginPath();
-              ctx.arc(pulseX, pulseY, 1.5, 0, Math.PI * 2);
-              ctx.fill();
-
-              ctx.restore();
-            }
-          }
-        });
-      }
-
-      // Data flow animation
-      if (currentFormationName === "dataFlow") {
-        connections.forEach((connection) => {
-          if (connection.strength > 0.5 && Math.random() < 0.015) {
-            const fromParticle = particles[connection.from];
-            const toParticle = particles[connection.to];
-
-            if (fromParticle && toParticle) {
-              ctx.save();
-
-              const t = 0.2 + Math.random() * 0.6;
-              const flowX =
-                fromParticle.x + (toParticle.x - fromParticle.x) * t;
-              const flowY =
-                fromParticle.y + (toParticle.y - fromParticle.y) * t;
-
-              ctx.fillStyle = "#3b82f6";
-              ctx.shadowColor = "#3b82f6";
-              ctx.shadowBlur = 3;
-              ctx.globalAlpha = 0.7;
-              ctx.beginPath();
-              ctx.arc(flowX, flowY, 1, 0, Math.PI * 2);
-              ctx.fill();
-
-              ctx.restore();
-            }
-          }
-        });
-      }
-
-      // Store the animation frame ID and continue the loop
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    // Start the animation
     animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
-      // Cancel animation frame on cleanup
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []); // Empty dependency array ensures this only runs once
+  }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-      style={{
-        background:
-          "radial-gradient(circle at 30% 20%, #0f0f23 0%, #0a0a14 50%, #000000 100%)",
-      }}
-    />
+    <div className="fixed inset-0 z-0 pointer-events-none">
+      {/* Canvas for animated code snippets only */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    </div>
   );
 };
 
@@ -564,7 +525,57 @@ interface Project {
   soloProject?: boolean;
 }
 
-const projects: Project[] = [
+const experiences: Project[] = [
+  // Work Experience
+  {
+    id: "2",
+    title: "Google DeepMind Internship",
+    description:
+      "Extended an existing 2D trajectory deconfliction algorithm into 3D space. Implemented conflict detection and resolution in three-dimensional environments, added advanced obstacle avoidance, and evaluated scalability and efficiency compared to the 2D counterpart. Developed custom algorithms for safe and efficient multi-agent path planning in complex 3D environments.",
+    tech: [
+      "Python",
+      "Numpy",
+      "Matplotlib",
+      "PyTorch",
+      "Jupyter",
+      "Pandas",
+      "ipyvolume",
+    ],
+    image:
+      "https://media.licdn.com/dms/image/v2/D4E22AQGOtVk-C88liw/feedshare-shrink_2048_1536/B4EZWoavlgGwAo-/0/1742287343682?e=1760572800&v=beta&t=thqYMVQF9Su6y_nPznyQeVinzid20y8bAX0AvqdQa4Y",
+    article: "https://www.cst.cam.ac.uk/opportunity-great-people-me",
+    poster: "3D-Trajectory-Deconfliction.pdf",
+    year: "2024",
+    category: "experience",
+    impact: "60% path efficiency improvement",
+    duration: "2 months",
+    soloProject: true,
+    featured: true,
+  },
+
+  // Education
+  {
+    id: "4",
+    title: "Computer Science Graduation",
+    description:
+      "Bachelor of Science in Computer Science with First Class honors. Specialised in Artificial Intelligence, Machine Learning, and Software Engineering. Completed advanced coursework in machine learning, algorithms, and system design.",
+    tech: [
+      "Machine Learning",
+      "Algorithms",
+      "System Design",
+      "Software Engineering",
+      "Database Systems",
+      "Computer Networks",
+    ],
+    image:
+      "https://latestlogo.com/wp-content/uploads/2024/02/shield-of-sheffield-hallam-university.png",
+    year: "2025",
+    category: "education",
+    impact: "First Class Honours (4.0/4.0 GPA)",
+    duration: "3 years",
+  },
+
+  // Projects
   {
     id: "1",
     title:
@@ -596,35 +607,6 @@ const projects: Project[] = [
     soloProject: true,
   },
   {
-    id: "2",
-    title: "Google DeepMind Internship",
-    description:
-      "Extended an existing 2D trajectory deconfliction algorithm into 3D space. Implemented conflict detection and resolution in three-dimensional environments, added advanced obstacle avoidance, and evaluated scalability and efficiency compared to the 2D counterpart. Developed custom algorithms for safe and efficient multi-agent path planning in complex 3D environments.",
-    tech: [
-      "Python",
-      "Numpy",
-      "Matplotlib",
-      "PyTorch",
-      "Jupyter",
-      "Pandas",
-      "ipyvolume",
-    ],
-    image:
-      "https://media.licdn.com/dms/image/v2/D4E22AQGOtVk-C88liw/feedshare-shrink_2048_1536/B4EZWoavlgGwAo-/0/1742287343682?e=1760572800&v=beta&t=thqYMVQF9Su6y_nPznyQeVinzid20y8bAX0AvqdQa4Y",
-    article: "https://www.cst.cam.ac.uk/opportunity-great-people-me",
-    video: {
-      url: "animation.mp4",
-      isExternal: false,
-    },
-    poster: "3D-Trajectory-Deconfliction.pdf",
-    year: "2024",
-    category: "experience",
-    impact: "60% path efficiency improvement",
-    duration: "2 months",
-    soloProject: true,
-    featured: true,
-  },
-  {
     id: "3",
     title: "Sentimental Product Analysis (E-commerce)",
     description:
@@ -642,26 +624,6 @@ const projects: Project[] = [
       url: "https://youtu.be/p7i85aXAszA",
       isExternal: true,
     },
-  },
-  {
-    id: "4",
-    title: "Computer Science Graduation",
-    description:
-      "Bachelor of Science in Computer Science with First Class honors. Specialised in Artificial Intelligence, Machine Learning, and Software Engineering. Completed advanced coursework in machine learning, algorithms, and system design.",
-    tech: [
-      "Machine Learning",
-      "Algorithms",
-      "System Design",
-      "Software Engineering",
-      "Database Systems",
-      "Computer Networks",
-    ],
-    image:
-      "https://latestlogo.com/wp-content/uploads/2024/02/shield-of-sheffield-hallam-university.png",
-    year: "2025",
-    category: "education",
-    impact: "First Class Honours (4.0/4.0 GPA)",
-    duration: "3 years",
   },
   {
     id: "5",
@@ -699,783 +661,1566 @@ const projects: Project[] = [
   },
 ];
 
-const skills = [
-  { name: "Python/FastAPI", level: 92, icon: Terminal },
-  { name: "Machine Learning/AI", level: 88, icon: Cpu },
-  { name: "React/JavaScript", level: 85, icon: Code },
-  { name: "Database Systems", level: 90, icon: Database },
-  { name: "PHP/Web Development", level: 82, icon: Globe },
-  { name: "Docker/DevOps", level: 78, icon: Layers },
+const skillCategories = [
+  {
+    category: "Programming Languages",
+    icon: Terminal,
+    skills: [
+      {
+        name: "Python",
+        experience: "3+ years",
+        projects: ["AI Tutor", "DeepMind Internship", "ML Research"],
+      },
+      {
+        name: "JavaScript/TypeScript",
+        experience: "2+ years",
+        projects: ["AI Tutor Frontend", "Portfolio Sites"],
+      },
+      {
+        name: "C#",
+        experience: "2 years",
+        projects: ["Car Dash Game", "Windows Applications"],
+      },
+      {
+        name: "PHP",
+        experience: "2 years",
+        projects: ["E-commerce Platform", "Gym Website"],
+      },
+    ],
+  },
+  {
+    category: "AI & Machine Learning",
+    icon: Cpu,
+    skills: [
+      {
+        name: "PyTorch",
+        experience: "2+ years",
+        projects: ["AI Tutor System", "DeepMind Research"],
+      },
+      {
+        name: "Deep Knowledge Tracing",
+        experience: "1 year",
+        projects: ["AI Tutor Multi-Agent System"],
+      },
+      {
+        name: "Multi-Agent Systems",
+        experience: "1 year",
+        projects: ["Personalized Learning Platform"],
+      },
+      {
+        name: "Research & Development",
+        experience: "2+ years",
+        projects: ["3D Trajectory Planning", "AI Education"],
+      },
+    ],
+  },
+  {
+    category: "Web Development",
+    icon: Globe,
+    skills: [
+      {
+        name: "React",
+        experience: "2+ years",
+        projects: ["AI Tutor", "Portfolio Sites"],
+      },
+      {
+        name: "FastAPI",
+        experience: "1+ years",
+        projects: ["AI Tutor Backend", "API Development"],
+      },
+      {
+        name: "Full-Stack Development",
+        experience: "3+ years",
+        projects: ["Multiple Web Applications"],
+      },
+      {
+        name: "Responsive Design",
+        experience: "3+ years",
+        projects: ["All Web Projects"],
+      },
+    ],
+  },
+  {
+    category: "Data & Infrastructure",
+    icon: Database,
+    skills: [
+      {
+        name: "PostgreSQL/MySQL",
+        experience: "3+ years",
+        projects: ["AI Tutor", "E-commerce", "Gym Website"],
+      },
+      {
+        name: "Docker",
+        experience: "1+ years",
+        projects: ["AI Tutor Deployment", "Development Environments"],
+      },
+      {
+        name: "System Design",
+        experience: "2+ years",
+        projects: ["Multi-Agent Architecture", "Scalable Applications"],
+      },
+      {
+        name: "Data Analysis",
+        experience: "2+ years",
+        projects: ["Sentiment Analysis", "Student Progress Tracking"],
+      },
+    ],
+  },
 ];
 
-function App() {
-  const [scrollY, setScrollY] = useState(0);
-  const [visibleItems, setVisibleItems] = useState(new Set());
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+const achievements = [
+  {
+    title: "First Class Honours",
+    description: "BSc Computer Science, Sheffield Hallam University",
+    year: "2025",
+  },
+  {
+    title: "Google DeepMind Internship",
+    description: "Research in 3D trajectory deconfliction algorithms",
+    year: "2024",
+  },
+  {
+    title: "AI Research Publication",
+    description: "Multi-agent systems for personalized learning",
+    year: "2025",
+  },
+];
+
+// Theme definitions
+const themes = {
+  blue: {
+    name: "Ocean Blue",
+    intro: {
+      background: "from-slate-900 via-blue-950 to-indigo-950",
+      text: "from-white via-blue-100 to-indigo-100",
+      accent: "text-blue-200",
+      button:
+        "from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800",
+      particles: "bg-blue-300/30",
+      borders: "border-blue-500/40",
+    },
+    main: {
+      background: "from-slate-100 via-blue-50 to-indigo-50",
+      nav: "bg-white/85",
+      text: "text-gray-800",
+      textMuted: "text-gray-500",
+      accent: "from-blue-600 to-indigo-600",
+      accentText: "text-blue-700",
+      button:
+        "from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700",
+      card: "bg-white",
+      cardHover: "hover:bg-blue-50/50",
+      border: "border-gray-200",
+      shadow: "shadow-lg shadow-blue-100/10",
+    },
+  },
+  emerald: {
+    name: "Forest Green",
+    intro: {
+      background: "from-slate-900 via-emerald-950 to-teal-950",
+      text: "from-white via-emerald-100 to-teal-100",
+      accent: "text-emerald-200",
+      button:
+        "from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800",
+      particles: "bg-emerald-300/30",
+      borders: "border-emerald-500/40",
+    },
+    main: {
+      background: "from-slate-100 via-emerald-50 to-teal-50",
+      nav: "bg-white/85",
+      text: "text-gray-800",
+      textMuted: "text-gray-500",
+      accent: "from-emerald-600 to-teal-600",
+      accentText: "text-emerald-700",
+      button:
+        "from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700",
+      card: "bg-white",
+      cardHover: "hover:bg-emerald-50/50",
+      border: "border-gray-200",
+      shadow: "shadow-lg shadow-emerald-100/10",
+    },
+  },
+  sunset: {
+    name: "Sunset Orange",
+    intro: {
+      background: "from-slate-900 via-orange-950 to-red-950",
+      text: "from-white via-orange-100 to-red-100",
+      accent: "text-orange-200",
+      button:
+        "from-orange-600 to-red-700 hover:from-orange-700 hover:to-red-800",
+      particles: "bg-orange-300/30",
+      borders: "border-orange-500/40",
+    },
+    main: {
+      background: "from-slate-100 via-orange-50 to-red-50",
+      nav: "bg-white/85",
+      text: "text-gray-800",
+      textMuted: "text-gray-500",
+      accent: "from-orange-600 to-red-600",
+      accentText: "text-orange-700",
+      button:
+        "from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700",
+      card: "bg-white",
+      cardHover: "hover:bg-orange-50/50",
+      border: "border-gray-200",
+      shadow: "shadow-lg shadow-orange-100/10",
+    },
+  },
+  purple: {
+    name: "Royal Purple",
+    intro: {
+      background: "from-slate-900 via-purple-950 to-indigo-950",
+      text: "from-white via-purple-100 to-indigo-100",
+      accent: "text-purple-200",
+      button:
+        "from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800",
+      particles: "bg-purple-300/30",
+      borders: "border-purple-500/40",
+    },
+    main: {
+      background: "from-slate-100 via-purple-50 to-indigo-50",
+      nav: "bg-white/85",
+      text: "text-gray-800",
+      textMuted: "text-gray-500",
+      accent: "from-purple-600 to-indigo-600",
+      accentText: "text-purple-700",
+      button:
+        "from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700",
+      card: "bg-white",
+      cardHover: "hover:bg-purple-50/50",
+      border: "border-gray-200",
+      shadow: "shadow-lg shadow-purple-100/10",
+    },
+  },
+  dark: {
+    name: "Dark Mode",
+    intro: {
+      background: "from-gray-950 via-slate-950 to-black",
+      text: "from-white via-gray-100 to-slate-100",
+      accent: "text-gray-200",
+      button:
+        "from-gray-700 to-slate-700 hover:from-gray-800 hover:to-slate-800",
+      particles: "bg-gray-300/30",
+      borders: "border-gray-500/40",
+    },
+    main: {
+      background: "from-gray-950 via-slate-950 to-black",
+      nav: "bg-gray-900/90",
+      text: "text-gray-100",
+      textMuted: "text-gray-400",
+      accent: "from-gray-500 to-slate-500",
+      accentText: "text-gray-300",
+      button:
+        "from-gray-700 to-slate-700 hover:from-gray-800 hover:to-slate-800",
+      card: "bg-gray-800",
+      cardHover: "hover:bg-gray-700",
+      border: "border-gray-700",
+      shadow: "shadow-lg shadow-gray-900/20",
+    },
+  },
+};
+
+function ProfessionalApp() {
   const [activeSection, setActiveSection] = useState("hero");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const heroRef = useRef<HTMLDivElement>(null);
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showMainContent, setShowMainContent] = useState(false);
+
+  const getCookie = (name: string) => {
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return match ? decodeURIComponent(match[2]) : null;
+  };
+  const setCookie = (name: string, value: string, days = 365) => {
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  };
+
+  const [currentTheme, setCurrentTheme] = useState<keyof typeof themes>(() => {
+    try {
+      const saved = getCookie("portfolio_theme");
+      if (saved && saved in themes) return saved as keyof typeof themes;
+    } catch { }
+    return "blue";
+  });
 
   useEffect(() => {
-    document.body.classList.remove("theme-dark", "theme-light");
-    document.body.classList.add(
-      theme === "dark" ? "theme-dark" : "theme-light"
-    );
-  }, [theme]);
+    try {
+      setCookie("portfolio_theme", currentTheme);
+    } catch { }
+  }, [currentTheme]);
 
+  // Contact form state
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formMessage, setFormMessage] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle portfolio entry with smooth transition
+  const handleEnterPortfolio = () => {
+    setIsTransitioning(true);
+    // After exit animation completes, show main content
+    setTimeout(() => {
+      setIsLoading(false);
+      setShowMainContent(true);
+    }, 800); // Match the exit animation duration
+  };
+
+  // Loading animation sequence
+  useEffect(() => {
+    // Start the name typing after initial delay
+    setTimeout(() => setAnimationPhase(1), 800);
+
+    // Phases 2 and 3 are now controlled by typewriter completion callbacks
+    // No auto-advance - user must click to enter
+  }, []);
+
+  // Keep navigation highlight via scroll without storing scrollY
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY);
-
-      // Determine active section
-      const sections = ["hero", "about", "skills", "timeline", "contact"];
+      const sections = ["hero", "about", "experience", "skills", "projects", "contact"];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
-
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
           const { offsetTop, offsetHeight } = element;
-          if (
-            scrollPosition >= offsetTop &&
-            scrollPosition < offsetTop + offsetHeight
-          ) {
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
             setActiveSection(section);
             break;
           }
         }
       }
     };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("mousemove", handleMouseMove);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleItems((prev) => new Set([...prev, entry.target.id]));
+  // Loading Screen Component with exit animation
+  const LoadingScreen = () => (
+    <motion.div
+      className={`fixed inset-0 z-[100] bg-gradient-to-br ${themes[currentTheme].intro.background} flex items-center justify-center`}
+      initial={{ opacity: 1, scale: 1, y: 0 }}
+      animate={
+        isTransitioning
+          ? {
+            opacity: 0,
+            scale: 0.95,
+            y: -50,
           }
+          : {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+          }
+      }
+      transition={{
+        duration: 0.8,
+        ease: [0.4, 0, 0.2, 1], // Custom easing for smooth feel
+      }}
+    >
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className={`absolute w-1 h-1 ${themes[currentTheme].intro.particles} rounded-full`}
+            animate={{
+              opacity: [0.2, 0.8, 0.2],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="text-center relative z-10">
+        {/* Self-Contained Typewriter with Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={
+            animationPhase >= 1
+              ? {
+                opacity: 1,
+                y: 0,
+              }
+              : {
+                opacity: 0,
+                y: 20,
+              }
+          }
+          transition={{ duration: 1, ease: "easeOut" }}
+        >
+          <LoadingTypewriter
+            onEnterPortfolio={handleEnterPortfolio}
+            theme={themes[currentTheme]}
+          />
+        </motion.div>
+      </div>
+
+      {/* Animated corner elements */}
+      <motion.div
+        className={`absolute top-10 left-10 w-20 h-20 border-l-2 border-t-2 ${themes[currentTheme].intro.borders}`}
+        animate={{
+          opacity: [0.3, 0.8, 0.3],
+          scale: [1, 1.05, 1],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className={`absolute bottom-10 right-10 w-20 h-20 border-r-2 border-b-2 ${themes[currentTheme].intro.borders}`}
+        animate={{
+          opacity: [0.3, 0.8, 0.3],
+          scale: [1, 1.05, 1],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1.5,
+        }}
+      />
+    </motion.div>
+  );
+
+  // Validate email
+  const isValidEmail = (email: string) => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
+
+  // Handle contact form submit
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError(null);
+    setFormSuccess(null);
+
+    if (!formName.trim() || !formEmail.trim() || !formMessage.trim()) {
+      setFormError("Please fill in all fields.");
+      return;
+    }
+    if (!isValidEmail(formEmail)) {
+      setFormError("Please enter a valid email address.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const endpoint = (import.meta as any).env?.VITE_FORMSPREE_ENDPOINT || (import.meta as any).env?.VITE_FORM_ENDPOINT || "";
+      if (endpoint) {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: formName, email: formEmail, message: formMessage }),
         });
-      },
-      { threshold: 0.1, rootMargin: "-50px" }
-    );
-
-    document.querySelectorAll("[data-animate]").forEach((el) => {
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "project":
-        return <Code className="w-5 h-5" />;
-      case "experience":
-        return <Briefcase className="w-5 h-5" />;
-      case "education":
-        return <GraduationCap className="w-5 h-5" />;
-      case "achievement":
-        return <Award className="w-5 h-5" />;
-      default:
-        return <Code className="w-5 h-5" />;
+        if (!res.ok) throw new Error("Failed to send message");
+        setFormSuccess("Thanks! Your message has been sent.");
+        setFormName("");
+        setFormEmail("");
+        setFormMessage("");
+      } else {
+        // Fallback to mailto
+        const subject = encodeURIComponent(`Portfolio Contact from ${formName}`);
+        const body = encodeURIComponent(`Name: ${formName}\nEmail: ${formEmail}\n\n${formMessage}`);
+        window.location.href = `mailto:Michael.Ogunrinde@outlook.com?subject=${subject}&body=${body}`;
+        setFormSuccess("Opening your email client...");
+      }
+    } catch (err) {
+      setFormError("Sorry, something went wrong. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "project":
-        return "from-blue-500 to-cyan-500";
-      case "experience":
-        return "from-emerald-500 to-teal-500";
-      case "education":
-        return "from-orange-500 to-red-500";
-      case "achievement":
-        return "from-yellow-500 to-amber-500";
-      default:
-        return "from-blue-500 to-cyan-500";
-    }
-  };
-
-  const mouseParallaxX = (mousePosition.x - window.innerWidth / 2) * 0.02;
-  const mouseParallaxY = (mousePosition.y - window.innerHeight / 2) * 0.02;
 
   return (
     <div
-      className={`min-h-screen overflow-x-hidden relative bg-main text-main`}
+      className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].main.background} ${themes[currentTheme].main.text} relative overflow-x-hidden`}
     >
-      {/* Theme Selector Dropdown */}
-      <div className="fixed top-6 left-6 z-50 flex items-center gap-2">
-        <label
-          htmlFor="theme-select"
-          className="text-sm text-muted font-medium"
-        >
-          Theme:
-        </label>
-        <select
-          id="theme-select"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value as "dark" | "light")}
-          className="px-3 py-2 rounded-lg bg-section text-main border border-gray-700 focus:outline-none"
-        >
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
-      </div>
+      {/* Container for overlapping content */}
+      <div className="relative w-full h-full">
+        {/* Loading Screen with exit animation */}
+        <AnimatePresence>{isLoading && <LoadingScreen />}</AnimatePresence>
 
-      {/* ML-Themed Particle Background */}
-      <MLParticleBackground />
-
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              MO
-            </div>
-            <div className="hidden md:flex gap-8">
-              {["About", "Skills", "Projects", "Contact"].map((item) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className={`text-sm font-medium transition-colors duration-300 ${
-                    activeSection === item.toLowerCase()
-                      ? "text-blue-400"
-                      : "text-gray-400 hover:text-white"
-                  }`}
-                >
-                  {item}
-                </a>
-              ))}
-            </div>
-            <a
-              href={`${import.meta.env.BASE_URL}cv/CV.pdf`}
-              download="Michael-Ogunrinde-CV.pdf"
-              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-colors duration-300 inline-flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Download My CV
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section
-        id="hero"
-        ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center py-20"
-      >
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-          {/* Profile Image with 3D Frame */}
-          <div className="relative mb-12 flex justify-center">
-            <div
-              className="relative transform-style-3d"
-              style={{
-                transform: `rotateX(${mouseParallaxY * 0.5}deg) rotateY(${
-                  mouseParallaxX * 0.5
-                }deg)`,
+        {/* Main Content with entry animation */}
+        <AnimatePresence>
+          {showMainContent && (
+            <motion.div
+              className="absolute inset-0 w-full h-full"
+              initial={{
+                opacity: 0,
+                y: 50,
+                scale: 0.98,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.8,
+                ease: [0.4, 0, 0.2, 1],
+                delay: 0.2, // Small delay after intro exits
               }}
             >
-              {/* 3D Frame layers */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl" />
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-md" />
+              <ProfessionalBackground />
 
-              {/* Profile Image Container */}
-              <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-gray-800 shadow-2xl">
-                <img
-                  src="https://media.licdn.com/dms/image/v2/D4E03AQGTYi4db1LpYw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1697993129490?e=1760572800&v=beta&t=4cr2p7X6N9qhdWOydp_qN-0ZRs0i1lAwlLFYl8OCZMQ"
-                  alt="Michael Ogunrinde"
-                  className="w-full h-full object-cover"
-                />
-                {/* Gradient overlay for depth */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10" />
-              </div>
-
-              {/* Floating particles around image */}
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute animate-float"
-                  style={{
-                    left: `${Math.cos((i * Math.PI) / 4) * 130 + 50}%`,
-                    top: `${Math.sin((i * Math.PI) / 4) * 130 + 50}%`,
-                    animationDelay: `${i * 0.4}s`,
-                    transform: "translate(-50%, -50%)",
-                  }}
+              {/* Theme Selector */}
+              <div className="fixed top-6 right-6 z-[60]">
+                <select
+                  value={currentTheme}
+                  onChange={(e) =>
+                    setCurrentTheme(e.target.value as keyof typeof themes)
+                  }
+                  className={`px-4 py-2 rounded-lg ${themes[currentTheme].main.card} ${themes[currentTheme].main.text} border ${themes[currentTheme].main.border} focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg backdrop-blur-sm`}
                 >
-                  <div className="w-2 h-2 bg-blue-400 rounded-full opacity-70 shadow-lg shadow-blue-400/50" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Michael Ogunrinde
-          </h1>
-
-          <p className="text-xl md:text-2xl text-gray-400 mb-4">
-            Full-Stack Developer & Computer Science Graduate
-          </p>
-
-          <p className="text-lg text-blue-400 mb-8 font-medium">
-            Specialising in AI/ML & Modern Web Technologies
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <span className="px-4 py-2 bg-gray-800/50 backdrop-blur-sm rounded-full text-sm border border-gray-700">
-              <MapPin className="inline w-4 h-4 mr-2" />
-              Sheffield, UK
-            </span>
-            <span className="px-4 py-2 bg-green-500/20 backdrop-blur-sm rounded-full text-sm border border-green-500/50">
-              <Zap className="inline w-4 h-4 mr-2" />
-              Available for hire
-            </span>
-          </div>
-
-          <div className="flex justify-center gap-4 mb-16">
-            <a
-              href="#contact"
-              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg shadow-blue-500/25"
-            >
-              Get In Touch
-            </a>
-            <a
-              href="#projects"
-              className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105"
-            >
-              View Projects
-            </a>
-          </div>
-
-          <div className="flex justify-center gap-6">
-            {[
-              {
-                icon: Github,
-                href: "https://github.com/MichaelOguns?tab=repositories",
-                label: "GitHub",
-              },
-              {
-                icon: Linkedin,
-                href: "https://www.linkedin.com/in/michael-ayomide-ogunrinde/",
-                label: "LinkedIn",
-              },
-              {
-                icon: Mail,
-                href: "mailto:Michael.Ogunrinde@outlook.com",
-                label: "Email",
-              },
-            ].map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110 group"
-                aria-label={label}
-              >
-                <Icon className="w-5 h-5 group-hover:text-blue-400 transition-colors duration-300" />
-              </a>
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <ChevronDown className="w-6 h-6 animate-bounce text-gray-400" />
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-20 relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div
-              data-animate
-              id="about-text"
-              className={`transform transition-all duration-1000 ${
-                visibleItems.has("about-text")
-                  ? "translate-x-0 opacity-100"
-                  : "-translate-x-20 opacity-0"
-              }`}
-            >
-              <h2 className="text-4xl font-bold mb-6">About Me</h2>
-              <p className="text-gray-400 mb-6 leading-relaxed">
-                I'm a passionate full-stack developer with a recent Computer
-                Science degree and a strong foundation in modern web
-                technologies and machine learning. My journey in tech has been
-                driven by curiosity and a desire to create intelligent solutions
-                that make a difference.
-              </p>
-              <p className="text-gray-400 mb-8 leading-relaxed">
-                With expertise spanning from front-end frameworks to AI/ML
-                systems, and backend frameworks. I bring a balanced approach to
-                software development, machine learning engineering, data
-                sceince... I thrive in collaborative environments and am always
-                eager to tackle new challenges that push the boundaries of
-                what's possible with technology.
-              </p>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-blue-500/50 transition-colors duration-300">
-                  <div className="text-3xl font-bold text-blue-400 mb-2">
-                    3+
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    Years of Experience
-                  </div>
-                </div>
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-green-500/50 transition-colors duration-300">
-                  <div className="text-3xl font-bold text-green-400 mb-2">
-                    10+
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    Projects Completed
-                  </div>
-                </div>
+                  {Object.entries(themes).map(([key, theme]) => (
+                    <option key={key} value={key}>
+                      {theme.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
 
-            <div
-              data-animate
-              id="about-visual"
-              className={`transform transition-all duration-1000 ${
-                visibleItems.has("about-visual")
-                  ? "translate-x-0 opacity-100"
-                  : "translate-x-20 opacity-0"
-              }`}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-3xl opacity-20" />
-                <div className="relative bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
-                  <div className="grid grid-cols-3 gap-4">
-                    {[Globe, Code, Cloud, Database, Cpu, Terminal].map(
-                      (Icon, index) => (
-                        <div
-                          key={index}
-                          className="aspect-square bg-gray-900/50 rounded-xl flex items-center justify-center hover:bg-gray-900/80 transition-all duration-300 group"
-                        >
-                          <Icon className="w-8 h-8 text-blue-400 group-hover:text-cyan-400 transition-colors duration-300" />
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section id="skills" className="py-20 relative z-10 bg-gray-900/30">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-16">
-            Technical Skills
-          </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {skills.map((skill, index) => (
-              <div
-                key={skill.name}
-                data-animate
-                id={`skill-${index}`}
-                className={`transform transition-all duration-700 ${
-                  visibleItems.has(`skill-${index}`)
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-20 opacity-0"
-                }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+              {/* Modern Navigation */}
+              <nav
+                className={`fixed top-0 left-0 right-0 z-50 ${themes[currentTheme].main.nav} backdrop-blur-xl border-b ${themes[currentTheme].main.border} shadow-lg shadow-black/5`}
               >
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 group hover:shadow-xl hover:shadow-blue-500/10">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors duration-300">
-                        <skill.icon className="w-5 h-5 text-blue-400 group-hover:text-cyan-400 transition-colors duration-300" />
-                      </div>
-                      <h3 className="font-semibold">{skill.name}</h3>
-                    </div>
-                    <span className="text-sm text-gray-400 group-hover:text-blue-400 transition-colors duration-300">
-                      {skill.level}%
-                    </span>
-                  </div>
-                  <div className="relative h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 py-4">
+                  <div className="flex justify-between items-center">
                     <div
-                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-1000"
-                      style={{
-                        width: visibleItems.has(`skill-${index}`)
-                          ? `${skill.level}%`
-                          : "0%",
-                        transitionDelay: `${index * 100 + 300}ms`,
-                      }}
+                      className={`text-2xl font-bold bg-gradient-to-r ${themes[currentTheme].main.accent} bg-clip-text text-transparent`}
+                    >
+                      Michael Ogunrinde
+                    </div>
+                    <div
+                      className={`hidden md:flex gap-1 ${themes[currentTheme].main.card}/80 backdrop-blur-sm rounded-full p-1 border ${themes[currentTheme].main.border}`}
+                    >
+                      {["About", "Experience", "Skills", "Contact"].map(
+                        (item) => {
+                          const isActive = activeSection === item.toLowerCase();
+
+                          let navItemClass =
+                            "px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ";
+
+                          if (isActive) {
+                            navItemClass += `${themes[currentTheme].main.card} ${themes[currentTheme].main.accentText} shadow-sm`;
+                          } else {
+                            navItemClass += `${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} hover:bg-white/50`;
+                          }
+
+                          return (
+                            <a
+                              key={item}
+                              href={`#${item.toLowerCase()}`}
+                              className={navItemClass}
+                            >
+                              {item}
+                            </a>
+                          );
+                        }
+                      )}
+                    </div>
+                    <a
+                      href={`${import.meta.env.BASE_URL}cv/CV.pdf`}
+                      download="Michael-Ogunrinde-CV.pdf"
+                      className={`px-6 py-3 bg-gradient-to-r ${themes[currentTheme].main.button} text-white rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5`}
+                    >
+                      <Download className="w-4 h-4" />
+                      Download CV
+                    </a>
+                  </div>
+                </div>
+              </nav>
+
+              {/* Modern Hero Section */}
+              <section
+                id="hero"
+                className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden"
+              >
+                {/* Hero section inherits background from main container */}
+
+                {/* Animated gradient orbs */}
+                <div
+                  className={`absolute top-1/4 left-1/4 w-80 h-80 rounded-full blur-3xl animate-pulse ${currentTheme === "blue"
+                    ? "bg-gradient-to-r from-blue-400/10 to-indigo-400/10"
+                    : currentTheme === "emerald"
+                      ? "bg-gradient-to-r from-emerald-400/10 to-teal-400/10"
+                      : currentTheme === "sunset"
+                        ? "bg-gradient-to-r from-orange-400/10 to-red-400/10"
+                        : currentTheme === "purple"
+                          ? "bg-gradient-to-r from-purple-400/10 to-indigo-400/10"
+                          : "bg-gradient-to-r from-gray-400/10 to-slate-400/10"
+                    }`}
+                ></div>
+                <div
+                  className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl animate-pulse ${currentTheme === "blue"
+                    ? "bg-gradient-to-r from-indigo-400/10 to-blue-400/10"
+                    : currentTheme === "emerald"
+                      ? "bg-gradient-to-r from-teal-400/10 to-cyan-400/10"
+                      : currentTheme === "sunset"
+                        ? "bg-gradient-to-r from-red-400/10 to-pink-400/10"
+                        : currentTheme === "purple"
+                          ? "bg-gradient-to-r from-indigo-400/10 to-blue-400/10"
+                          : "bg-gradient-to-r from-slate-400/10 to-gray-400/10"
+                    }`}
+                  style={{ animationDelay: "2s" }}
+                ></div>
+
+                {/* Programming background for hero section only */}
+                <HeroProgrammingBackground />
+
+                {/* Modern grid pattern */}
+                <div
+                  className="absolute inset-0 opacity-[0.02] pointer-events-none"
+                  style={{
+                    backgroundImage: `
+              linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)
+            `,
+                    backgroundSize: "40px 40px",
+                  }}
+                ></div>
+
+                <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+                  <div data-animate id="hero-content">
+                    {/* Modern profile section */}
+                    <div className="relative mb-12">
+                      <div className="w-40 h-40 mx-auto mb-8 relative">
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-r ${themes[currentTheme].main.accent} rounded-full animate-spin-slow`}
+                        ></div>
+                        <div className="absolute inset-2 rounded-full overflow-hidden bg-white shadow-2xl">
+                          <img
+                            src={`${import.meta.env.BASE_URL}images/image1.jpeg`}
+                            alt="Michael Ogunrinde"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = `data:image/svg+xml;base64,${btoa(`
+                        <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="128" height="128" fill="#3B82F6"/>
+                          <circle cx="64" cy="45" r="20" fill="white"/>
+                          <path d="M30 100c0-18.8 15.2-34 34-34s34 15.2 34 34v10H30v-10z" fill="white"/>
+                        </svg>
+                      `)}`;
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Modern typography */}
+                    <div className="space-y-6 mb-12">
+                      <div
+                        className={`inline-flex items-center gap-2 px-4 py-2 ${themes[currentTheme].main.card} ${themes[currentTheme].main.accentText} rounded-full text-sm font-medium mb-4 border ${themes[currentTheme].main.border}`}
+                      >
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Available for opportunities
+                      </div>
+
+                      <h1 className="text-5xl md:text-6xl font-extrabold mb-4">
+                        <span
+                          className={`bg-gradient-to-r ${themes[currentTheme].main.accent} bg-clip-text text-transparent`}
+                        >
+                          Michael
+                        </span>
+                        <br />
+                        <span
+                          className={`bg-gradient-to-r ${themes[currentTheme].main.accent} bg-clip-text text-transparent`}
+                        >
+                          Ogunrinde
+                        </span>
+                      </h1>
+
+                      <div className="space-y-4">
+                        <p
+                          className={`text-xl md:text-2xl font-semibold ${themes[currentTheme].main.textMuted}`}
+                        >
+                          AI Engineer & Full-Stack Developer
+                        </p>
+
+                        <p
+                          className={`text-base ${themes[currentTheme].main.textMuted} max-w-3xl mx-auto leading-relaxed`}
+                        >
+                          Building intelligent systems that solve real business
+                          problems. I create custom AI models and integrate them
+                          into practical applications - from personalized
+                          learning platforms to enterprise solutions that drive
+                          measurable impact.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Modern CTA buttons */}
+                    <div
+                      className={`flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 transition-all duration-1000 delay-1200 ${isLoading
+                        ? "opacity-0 transform translate-y-12"
+                        : "opacity-100 transform translate-y-0"
+                        }`}
+                    >
+                      <a
+                        href="#contact"
+                        className={`group px-8 py-4 bg-gradient-to-r ${themes[currentTheme].main.button} text-white rounded-full font-medium transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[currentTheme].main.accentText.replace("text-", "")}`}
+                      >
+                        <Mail className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                        Let's Connect
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </a>
+                      <a
+                        href="#experience"
+                        className={`group px-8 py-4 ${themes[currentTheme].main.card}/80 backdrop-blur-sm border ${themes[currentTheme].main.border} hover:border-${themes[currentTheme].main.accentText.replace("text-", "")} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} rounded-full font-medium transition-all duration-300 inline-flex items-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[currentTheme].main.accentText.replace("text-", "")}`}
+                      >
+                        <Code className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        Explore My Work
+                      </a>
+                    </div>
+
+                    {/* Modern stats */}
+                    <div
+                      className={`grid grid-cols-3 gap-8 max-w-md mx-auto mb-12 transition-all duration-1000 delay-1400 ${isLoading
+                        ? "opacity-0 transform translate-y-12"
+                        : "opacity-100 transform translate-y-0"
+                        }`}
+                    >
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}>
+                          3+
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Years Experience
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}>
+                          6+
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Projects Delivered
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}>
+                          1st
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Class Honours
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`flex justify-center gap-6 transition-all duration-1000 delay-1600 ${isLoading
+                        ? "opacity-0 transform translate-y-12"
+                        : "opacity-100 transform translate-y-0"
+                        }`}
+                    >
+                      <a
+                        href="https://github.com/MichaelOguns?tab=repositories"
+                        className={`${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} transition-colors duration-300`}
+                        aria-label="GitHub"
+                      >
+                        <Github className="w-6 h-6" />
+                      </a>
+                      <a
+                        href="https://www.linkedin.com/in/michael-ayomide-ogunrinde/"
+                        className={`${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} transition-colors duration-300`}
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="w-6 h-6" />
+                      </a>
+                      <a
+                        href="mailto:Michael.Ogunrinde@outlook.com"
+                        className={`${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} transition-colors duration-300`}
+                        aria-label="Email"
+                      >
+                        <Mail className="w-6 h-6" />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+                    <ChevronDown
+                      className={`w-6 h-6 ${themes[currentTheme].main.textMuted}`}
                     />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline Section */}
-      <section id="projects" className="py-20 relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-16">
-            Projects & Experience
-          </h2>
-
-          <div className="space-y-24">
-            {projects.map((project, index) => (
-              <div
-                key={project.id}
-                data-animate
-                id={`project-${project.id}`}
-                className={`relative transform transition-all duration-1000 ${
-                  visibleItems.has(`project-${project.id}`)
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-20 opacity-0"
-                }`}
+              </section>
+              {/* Modern About Section */}
+              <section
+                id="about"
+                className="py-32 relative z-10 overflow-hidden"
               >
-                {/* Year display - floating to the side */}
-                <div
-                  className={`absolute top-0 ${
-                    index % 2 === 0
-                      ? "left-0 lg:-left-20"
-                      : "right-0 lg:-right-20"
-                  } hidden lg:block`}
-                >
-                  <div className="text-6xl font-bold text-gray-800">
-                    {project.year}
-                  </div>
-                </div>
-
-                {/* Year for mobile - centered */}
-                <div className="text-center mb-8 lg:hidden">
-                  <div className="text-4xl font-bold text-gray-700">
-                    {project.year}
-                  </div>
-                </div>
-
-                {/* Project card */}
-                <div className="max-w-5xl mx-auto">
-                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-all duration-300 group hover:shadow-2xl hover:shadow-blue-500/10">
-                    <div
-                      className={`grid md:grid-cols-2 gap-0 ${
-                        index % 2 === 0 ? "" : "md:flex-row-reverse"
-                      }`}
-                    >
-                      {/* Image Section */}
+                <div className="max-w-6xl mx-auto px-6">
+                  <div data-animate id="about-content">
+                    <div className="text-center mb-20">
                       <div
-                        className={`relative h-80 md:h-full overflow-hidden ${
-                          index % 2 === 0 ? "" : "md:order-2"
-                        }`}
+                        className={`inline-flex items-center gap-2 px-4 py-2 ${themes[currentTheme].main.card} ${themes[currentTheme].main.accentText} rounded-full text-sm font-medium mb-6 border ${themes[currentTheme].main.border}`}
                       >
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent" />
-
-                        {/* Category badge */}
-                        <div className="absolute top-6 left-6">
-                          <div
-                            className={`p-3 bg-gradient-to-r ${getCategoryColor(
-                              project.category
-                            )} rounded-xl shadow-lg`}
-                          >
-                            {getCategoryIcon(project.category)}
-                          </div>
-                        </div>
-
-                        {project.featured && (
-                          <div className="absolute top-6 right-6 px-4 py-2 bg-yellow-500/20 backdrop-blur-sm rounded-full border border-yellow-500/30 flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="text-sm font-medium text-yellow-400">
-                              Featured
-                            </span>
-                          </div>
-                        )}
+                        <User className="w-4 h-4" />
+                        About Me
                       </div>
-
-                      {/* Content Section */}
+                      <h2 className="text-4xl md:text-5xl font-extrabold mb-6">
+                        <span
+                          className={`bg-gradient-to-r ${themes[currentTheme].main.accent} bg-clip-text text-transparent`}
+                        >
+                          Passionate About
+                        </span>
+                        <br />
+                        <span
+                          className={`bg-gradient-to-r ${themes[currentTheme].main.accent} bg-clip-text text-transparent`}
+                        >
+                          Innovation
+                        </span>
+                      </h2>
                       <div
-                        className={`p-8 md:p-10 flex flex-col justify-center ${
-                          index % 2 === 0 ? "" : "md:order-1"
-                        }`}
-                      >
-                        <div className="mb-4">
-                          <span className="text-sm text-gray-400 uppercase tracking-wider">
-                            {project.category}
-                          </span>
-                        </div>
+                        className={`w-32 h-1 bg-gradient-to-r ${themes[currentTheme].main.accent} mx-auto rounded-full`}
+                      ></div>
+                    </div>
 
-                        <h3 className="text-3xl font-bold mb-4">
-                          {project.title}
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                      <div>
+                        <h3
+                          className={`text-xl font-bold ${themes[currentTheme].main.text} mb-6`}
+                        >
+                          Passionate About Innovation
                         </h3>
-                        <p className="text-gray-400 mb-6 leading-relaxed">
-                          {project.description}
+                        <p
+                          className={`${themes[currentTheme].main.textMuted} mb-6 text-base leading-relaxed`}
+                        >
+                          As a recent Computer Science graduate with First Class
+                          Honours, I bring a unique blend of academic excellence
+                          and practical experience. My internship at Google
+                          DeepMind provided invaluable insights into
+                          advanced AI research, while my personal projects
+                          demonstrate my ability to translate complex concepts
+                          into real-world solutions.
+                        </p>
+                        <p className="text-gray-600 mb-6 text-base leading-relaxed">
+                          I specialised in machine learning, full-stack
+                          development, and creating intelligent systems that
+                          solve meaningful problems. My approach combines
+                          rigorous technical skills with creative
+                          problem-solving to deliver impactful results.
                         </p>
 
-                        {/* Stats Grid */}
-                        {(project.impact ||
-                          project.duration ||
-                          project.teamSize ||
-                          project.soloProject) && (
-                          <div className="grid grid-cols-3 gap-4 mb-6">
-                            {project.impact && (
-                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
-                                <Target className="w-5 h-5 text-green-400 mx-auto mb-1" />
-                                <div className="text-xs text-gray-400">
-                                  Impact
-                                </div>
-                                <div className="text-sm font-semibold text-green-400">
-                                  {project.impact}
-                                </div>
-                              </div>
-                            )}
-                            {project.duration && (
-                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
-                                <Calendar className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                                <div className="text-xs text-gray-400">
-                                  Duration
-                                </div>
-                                <div className="text-sm font-semibold text-blue-400">
-                                  {project.duration}
-                                </div>
-                              </div>
-                            )}
-                            {project.teamSize && (
-                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
-                                <Users className="w-5 h-5 text-purple-400 mx-auto mb-1" />
-                                <div className="text-xs text-gray-400">
-                                  Team
-                                </div>
-                                <div className="text-sm font-semibold text-purple-400">
-                                  {project.teamSize}
-                                </div>
-                              </div>
-                            )}
-                            {project.soloProject && (
-                              <div className="text-center p-3 bg-gray-900/50 rounded-lg">
-                                <User className="w-5 h-5 text-orange-400 mx-auto mb-1" />
-                                <div className="text-xs text-gray-400">
-                                  Solo
-                                </div>
-                                <div className="text-sm font-semibold text-orange-400">
-                                  Dev
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Tech stack */}
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {project.tech.slice(0, 5).map((tech) => (
-                            <span
-                              key={tech}
-                              className="px-3 py-1 text-xs bg-gray-900/50 rounded-full text-gray-300 border border-gray-700 hover:border-blue-500/50 transition-colors duration-300"
+                        <div className="grid grid-cols-2 gap-6">
+                          <div
+                            className={`text-center p-4 ${themes[currentTheme].main.card} rounded-lg ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border}`}
+                          >
+                            <div
+                              className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-2`}
                             >
-                              {tech}
-                            </span>
-                          ))}
-                          {project.tech.length > 5 && (
-                            <span className="px-3 py-1 text-xs bg-gray-900/50 rounded-full text-gray-400 border border-gray-700">
-                              +{project.tech.length - 5} more
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Actions */}
-                        {(project.github ||
-                          project.demo ||
-                          project.article ||
-                          project.poster ||
-                          project.video) && (
-                          <div className="flex gap-4">
-                            {project.github && (
-                              <a
-                                href={project.github}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 rounded-lg hover:bg-gray-900/80 transition-all duration-300 text-sm group"
-                              >
-                                <Github className="w-4 h-4 group-hover:text-blue-400 transition-colors duration-300" />
-                                View Code
-                              </a>
-                            )}
-                            {project.demo && (
-                              <a
-                                href={project.demo}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/50 rounded-lg hover:bg-blue-500/30 transition-all duration-300 text-sm group"
-                              >
-                                <ExternalLink className="w-4 h-4 group-hover:text-cyan-400 transition-colors duration-300" />
-                                Live Demo
-                              </a>
-                            )}
-                            {project.article && (
-                              <a
-                                href={project.article}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-lg hover:bg-green-500/30 transition-all duration-300 text-sm group"
-                              >
-                                <FileText className="w-4 h-4 group-hover:text-green-400 transition-colors duration-300" />
-                                Read Article
-                              </a>
-                            )}
-                            {project.poster && (
-                              <a
-                                href={`${import.meta.env.BASE_URL}posters/${
-                                  project.poster
-                                }`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 transition-all duration-300 text-sm group"
-                              >
-                                <FileImage className="w-4 h-4 group-hover:text-purple-400 transition-colors duration-300" />
-                                View Poster
-                              </a>
-                            )}
-                            {project.video && (
-                              <a
-                                href={
-                                  project.video.isExternal
-                                    ? project.video.url
-                                    : `${import.meta.env.BASE_URL}videos/${
-                                        project.video.url
-                                      }`
-                                }
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-lg hover:bg-red-500/30 transition-all duration-300 text-sm group"
-                              >
-                                <Play className="w-4 h-4 group-hover:text-red-400 transition-colors duration-300" />
-                                Watch Video
-                              </a>
-                            )}
+                              3+
+                            </div>
+                            <div
+                              className={`text-sm ${themes[currentTheme].main.textMuted}`}
+                            >
+                              Years Experience
+                            </div>
                           </div>
-                        )}
+                          <div
+                            className={`text-center p-4 ${themes[currentTheme].main.card} rounded-lg ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border}`}
+                          >
+                            <div
+                              className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-2`}
+                            >
+                              10+
+                            </div>
+                            <div
+                              className={`text-sm ${themes[currentTheme].main.textMuted}`}
+                            >
+                              Projects Completed
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <h3
+                          className={`text-xl font-bold ${themes[currentTheme].main.text} mb-6`}
+                        >
+                          Key Achievements
+                        </h3>
+                        {achievements.map((achievement, _) => (
+                          <div
+                            key={_}
+                            className={`flex items-start gap-4 p-4 ${themes[currentTheme].main.card} rounded-lg ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} hover:border-${themes[currentTheme].main.accentText.replace("text-", "")} transition-colors duration-300`}
+                          >
+                            <div className="flex-shrink-0">
+                              <Award className={`w-6 h-6 ${themes[currentTheme].main.accentText}`} />
+                            </div>
+                            <div>
+                              <h4
+                                className={`font-semibold ${themes[currentTheme].main.text} mb-1`}
+                              >
+                                {achievement.title}
+                              </h4>
+                              <p
+                                className={`${themes[currentTheme].main.textMuted} text-sm mb-2`}
+                              >
+                                {achievement.description}
+                              </p>
+                              <span
+                                className={`text-xs ${themes[currentTheme].main.accentText} font-medium`}
+                              >
+                                {achievement.year}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 relative z-10 bg-gray-900/30">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Let's Connect</h2>
-          <p className="text-xl text-gray-400 mb-12">
-            I'm always interested in hearing about new opportunities and
-            exciting projects involving AI, ML, and cutting-edge web
-            technologies.
-          </p>
+              {/* Experience Section */}
+              <section id="experience" className="py-20 relative z-10">
+                <div className="max-w-6xl mx-auto px-6">
+                  <div data-animate id="experience-content">
+                    <div className="text-center mb-16">
+                      <h2
+                        className={`text-4xl font-extrabold ${themes[currentTheme].main.text} mb-4`}
+                      >
+                        Professional Journey
+                      </h2>
+                      <div
+                        className={`w-24 h-1 bg-gradient-to-r ${themes[currentTheme].main.accent} mx-auto mb-6 rounded-full`}
+                      ></div>
+                      <p
+                        className={`${themes[currentTheme].main.textMuted} max-w-2xl mx-auto text-base`}
+                      >
+                        Explore my professional experience across different
+                        areas of expertise
+                      </p>
+                    </div>
 
-          <div className="flex justify-center gap-4 mb-12">
-            <a
-              href="mailto:Michael.Ogunrinde@outlook.com"
-              className="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-lg shadow-blue-500/25"
-            >
-              <Mail className="w-5 h-5" />
-              Get In Touch
-            </a>
-            <a
-              href={`${import.meta.env.BASE_URL}cv/CV.pdf`}
-              download="Michael-Ogunrinde-CV.pdf"
-              className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium border border-gray-700 transition-all duration-300 hover:scale-105 flex items-center gap-2"
-            >
-              <Download className="w-5 h-5" />
-              Download CV
-            </a>
-          </div>
+                    {/* Category Tabs */}
+                    <div className="flex flex-wrap justify-center gap-2 mb-12">
+                      {[
+                        { key: "all", label: "All", icon: "🌟" },
+                        {
+                          key: "experience",
+                          label: "Work Experience",
+                          icon: "💼",
+                        },
+                        { key: "education", label: "Education", icon: "🎓" },
+                        { key: "project", label: "Projects", icon: "🚀" },
+                        {
+                          key: "achievement",
+                          label: "Achievements",
+                          icon: "🏆",
+                        },
+                      ].map((category) => (
+                        <button
+                          key={category.key}
+                          onClick={() => setActiveCategory(category.key)}
+                          className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${activeCategory === category.key
+                            ? `bg-gradient-to-r ${themes[currentTheme].main.button} text-white shadow-md`
+                            : `${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} ${themes[currentTheme].main.cardHover} hover:${themes[currentTheme].main.accentText} border ${themes[currentTheme].main.border} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[currentTheme].main.accentText.replace("text-", "")}`
+                            }`}
+                        >
+                          <span>{category.icon}</span>
+                          <span>{category.label}</span>
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full ${activeCategory === category.key
+                              ? "bg-white/20 text-white"
+                              : `${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} border ${themes[currentTheme].main.border}`
+                              }`}
+                          >
+                            {category.key === "all"
+                              ? experiences.length
+                              : experiences.filter(
+                                (exp) => exp.category === category.key
+                              ).length}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
 
-          <div className="flex justify-center gap-6">
-            {[
-              {
-                icon: Github,
-                href: "https://github.com/MichaelOguns?tab=repositories",
-                label: "GitHub",
-              },
-              {
-                icon: Linkedin,
-                href: "https://www.linkedin.com/in/michael-ayomide-ogunrinde/",
-                label: "LinkedIn",
-              },
-              {
-                icon: Mail,
-                href: "mailto:Michael.Ogunrinde@outlook.com",
-                label: "Email",
-              },
-            ].map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                className="p-3 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-110 group"
-                aria-label={label}
+                    {/* Experience Cards - Scrollable Container */}
+                    <div className="max-h-[800px] overflow-y-auto pr-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      {experiences
+                        .filter(
+                          (exp) =>
+                            activeCategory === "all" ||
+                            exp.category === activeCategory
+                        )
+                        .map((experience, _) => (
+                          <div
+                            key={experience.id}
+                            className={`${themes[currentTheme].main.card} rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-${themes[currentTheme].main.accentText.replace("text-", "")} focus-within:ring-2 focus-within:ring-${themes[currentTheme].main.accentText.replace("text-", "")} focus-within:ring-offset-2 focus-within:ring-offset-${themes[currentTheme].main.background.split(' ')[0].split('-')[2]}`}
+                            data-animate
+                            id={`experience-${experience.id}`}
+                          >
+                            <div className="md:flex">
+                              <div className="md:w-1/3">
+                                <div className="h-64 md:h-full relative overflow-hidden">
+                                  <img
+                                    src={experience.image}
+                                    alt={experience.title}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      const target =
+                                        e.target as HTMLImageElement;
+                                      target.src = `data:image/svg+xml;base64,${btoa(`
+                              <svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="400" height="300" fill="#F8FAFC"/>
+                                <rect x="150" y="100" width="100" height="100" rx="8" fill="#E2E8F0"/>
+                                <circle cx="200" cy="130" r="15" fill="#94A3B8"/>
+                                <path d="M175 160h50l-10 20h-30l-10-20z" fill="#94A3B8"/>
+                              </svg>
+                            `)}`;
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                                </div>
+                              </div>
+                              <div className="md:w-2/3 p-8">
+                                <div className="flex items-center gap-3 mb-4">
+                                  <div
+                                    className={`flex-shrink-0 w-10 h-10 ${themes[currentTheme].main.card} rounded-lg flex items-center justify-center border ${themes[currentTheme].main.border}`}
+                                  >
+                                    {experience.category === "experience" && (
+                                      <Briefcase
+                                        className={`w-5 h-5 ${themes[currentTheme].main.accentText}`}
+                                      />
+                                    )}
+                                    {experience.category === "education" && (
+                                      <GraduationCap
+                                        className={`w-5 h-5 ${themes[currentTheme].main.accentText}`}
+                                      />
+                                    )}
+                                    {experience.category === "project" && (
+                                      <Code
+                                        className={`w-5 h-5 ${themes[currentTheme].main.accentText}`}
+                                      />
+                                    )}
+                                    {experience.category === "achievement" && (
+                                      <Award
+                                        className={`w-5 h-5 ${themes[currentTheme].main.accentText}`}
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h3
+                                        className={`text-xl font-semibold ${themes[currentTheme].main.text} flex items-center gap-2`}
+                                      >
+                                        {experience.title}
+                                        {experience.featured && (
+                                          <span
+                                            className="text-yellow-500"
+                                            title="Featured"
+                                          >
+                                            ⭐
+                                          </span>
+                                        )}
+                                      </h3>
+                                      <span
+                                        className={`px-2 py-1 text-xs font-medium rounded-full ${experience.category === "experience"
+                                          ? "bg-green-100 text-green-700"
+                                          : experience.category ===
+                                            "education"
+                                            ? "bg-purple-100 text-purple-700"
+                                            : experience.category === "project"
+                                              ? "bg-blue-100 text-blue-700"
+                                              : "bg-yellow-100 text-yellow-700"
+                                          }`}
+                                      >
+                                        {experience.category
+                                          .charAt(0)
+                                          .toUpperCase() +
+                                          experience.category.slice(1)}
+                                      </span>
+                                    </div>
+                                    <p
+                                      className={`text-sm ${themes[currentTheme].main.textMuted}`}
+                                    >
+                                      {experience.year} • {experience.duration}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <p
+                                  className={`${themes[currentTheme].main.textMuted} mb-6 leading-relaxed`}
+                                >
+                                  {experience.description}
+                                </p>
+
+                                {experience.impact && (
+                                  <div
+                                    className={`mb-6 p-4 ${themes[currentTheme].main.card} border ${themes[currentTheme].main.border} rounded-lg`}
+                                  >
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Target
+                                        className={`w-4 h-4 ${themes[currentTheme].main.accentText}`}
+                                      />
+                                      <span
+                                        className={`text-sm font-medium ${themes[currentTheme].main.accentText}`}
+                                      >
+                                        Impact
+                                      </span>
+                                    </div>
+                                    <p
+                                      className={`text-sm ${themes[currentTheme].main.textMuted}`}
+                                    >
+                                      {experience.impact}
+                                    </p>
+                                  </div>
+                                )}
+
+                                <div className="mb-6">
+                                  <h4
+                                    className={`text-sm font-medium ${themes[currentTheme].main.text} mb-3`}
+                                  >
+                                    {experience.category === "education"
+                                      ? "Subjects & Skills"
+                                      : "Technologies Used"}
+                                  </h4>
+                                  <div className="flex flex-wrap gap-2">
+                                    {experience.tech.slice(0, 6).map((tech) => (
+                                      <span
+                                        key={tech}
+                                        className={`px-3 py-1 ${themes[currentTheme].main.card} ${themes[currentTheme].main.accentText} text-xs font-medium rounded-full border ${themes[currentTheme].main.border}`}
+                                      >
+                                        {tech}
+                                      </span>
+                                    ))}
+                                    {experience.tech.length > 6 && (
+                                      <span
+                                        className={`px-3 py-1 ${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} text-xs font-medium rounded-full border ${themes[currentTheme].main.border}`}
+                                      >
+                                        +{experience.tech.length - 6} more
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-3">
+                                  {experience.demo && (
+                                    <a
+                                      href={experience.demo}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${themes[currentTheme].main.button} text-white text-sm font-medium rounded-lg transition-colors duration-300`}
+                                    >
+                                      <ExternalLink className="w-4 h-4" />
+                                      Live Demo
+                                    </a>
+                                  )}
+                                  {experience.github && (
+                                    <a
+                                      href={experience.github}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`inline-flex items-center gap-2 px-4 py-2 border ${themes[currentTheme].main.border} hover:${themes[currentTheme].main.accentText} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} text-sm font-medium rounded-lg transition-colors duration-300`}
+                                    >
+                                      <Github className="w-4 h-4" />
+                                      Source Code
+                                    </a>
+                                  )}
+                                  {experience.video && (
+                                    <a
+                                      href={experience.video.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`inline-flex items-center gap-2 px-4 py-2 border ${themes[currentTheme].main.border} hover:${themes[currentTheme].main.accentText} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} text-sm font-medium rounded-lg transition-colors duration-300`}
+                                    >
+                                      <Play className="w-4 h-4" />
+                                      Demo Video
+                                    </a>
+                                  )}
+                                  {experience.article && (
+                                    <a
+                                      href={experience.article}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`inline-flex items-center gap-2 px-4 py-2 border ${themes[currentTheme].main.border} hover:${themes[currentTheme].main.accentText} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} text-sm font-medium rounded-lg transition-colors duration-300`}
+                                    >
+                                      <ExternalLink className="w-4 h-4" />
+                                      Article
+                                    </a>
+                                  )}
+                                  {experience.poster && (
+                                    <a
+                                      href={`${import.meta.env.BASE_URL
+                                        }posters/${experience.poster}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`inline-flex items-center gap-2 px-4 py-2 border ${themes[currentTheme].main.border} hover:${themes[currentTheme].main.accentText} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} text-sm font-medium rounded-lg transition-colors duration-300`}
+                                    >
+                                      <FileText className="w-4 h-4" />
+                                      Research Paper
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Skills Section */}
+              <section id="skills" className="py-20 relative z-10">
+                <div className="max-w-6xl mx-auto px-6">
+                  <div data-animate id="skills-content">
+                    <div className="text-center mb-16">
+                      <h2
+                        className={`text-4xl font-extrabold ${themes[currentTheme].main.text} mb-4`}
+                      >
+                        Technical Expertise
+                      </h2>
+                      <div
+                        className={`w-24 h-1 bg-gradient-to-r ${themes[currentTheme].main.accent} mx-auto mb-6 rounded-full`}
+                      ></div>
+                      <p
+                        className={`${themes[currentTheme].main.textMuted} max-w-2xl mx-auto text-base`}
+                      >
+                        Skills developed through hands-on experience in real
+                        projects and professional work
+                      </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                      {skillCategories.map((category, _) => (
+                        <div
+                          key={category.category}
+                          className={`${themes[currentTheme].main.card} p-6 rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} transition-all duration-500 hover:shadow-xl hover:border-${themes[currentTheme].main.accentText.replace("text-", "")}`}
+                          data-animate
+                          id={`skill-category-${_}`}
+                          style={{
+                            transitionDelay: `${_ * 100}ms`,
+                          }}
+                        >
+                          <div className="flex items-center gap-3 mb-6">
+                            <div
+                              className={`flex-shrink-0 w-12 h-12 ${themes[currentTheme].main.card} rounded-lg flex items-center justify-center border ${themes[currentTheme].main.border}`}
+                            >
+                              <category.icon
+                                className={`w-6 h-6 ${themes[currentTheme].main.accentText}`}
+                              />
+                            </div>
+                            <h3
+                              className={`text-lg font-semibold ${themes[currentTheme].main.text}`}
+                            >
+                              {category.category}
+                            </h3>
+                          </div>
+
+                          <div className="space-y-4">
+                            {category.skills.map((skill, _) => (
+                              <div
+                                key={skill.name}
+                                className={`border-l-2 border-${themes[
+                                  currentTheme
+                                ].main.accentText.replace(
+                                  "text-",
+                                  ""
+                                )}/20 pl-4`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4
+                                    className={`font-medium ${themes[currentTheme].main.text}`}
+                                  >
+                                    {skill.name}
+                                  </h4>
+                                  <span
+                                    className={`text-xs ${themes[currentTheme].main.card} ${themes[currentTheme].main.accentText} px-2 py-1 rounded-full border ${themes[currentTheme].main.border}`}
+                                  >
+                                    {skill.experience}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`text-sm ${themes[currentTheme].main.textMuted} mb-2`}
+                                >
+                                  <span className="font-medium">Used in:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {skill.projects.slice(0, 3).map((project) => (
+                                    <span
+                                      key={project}
+                                      className={`text-xs ${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} px-2 py-1 rounded-md border ${themes[currentTheme].main.border}`}
+                                    >
+                                      {project}
+                                    </span>
+                                  ))}
+                                  {skill.projects.length > 3 && (
+                                    <span
+                                      className={`text-xs ${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} px-2 py-1 rounded-md border ${themes[currentTheme].main.border}`}
+                                    >
+                                      +{skill.projects.length - 3} more
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Contact Section */}
+              <section id="contact" className="py-20 relative z-10">
+                <div className="max-w-4xl mx-auto px-6">
+                  <div data-animate id="contact-content">
+                    <div className="text-center mb-16">
+                      <h2
+                        className={`text-4xl font-extrabold ${themes[currentTheme].main.text} mb-4`}
+                      >
+                        Get In Touch
+                      </h2>
+                      <div
+                        className={`w-24 h-1 bg-gradient-to-r ${themes[currentTheme].main.accent} mx-auto mb-6 rounded-full`}
+                      ></div>
+                      <p
+                        className={`${themes[currentTheme].main.textMuted} max-w-2xl mx-auto text-base`}
+                      >
+                        I'm always interested in new opportunities and
+                        collaborations. Let's discuss how we can work together.
+                      </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-12">
+                      <div>
+                        <h3
+                          className={`text-xl font-bold ${themes[currentTheme].main.text} mb-6`}
+                        >
+                          Let's Connect
+                        </h3>
+                        <p
+                          className={`${themes[currentTheme].main.textMuted} mb-8 text-base leading-relaxed`}
+                        >
+                          Whether you're looking for a talented developer, have
+                          a project in mind, or just want to chat about
+                          technology and innovation, I'd love to hear from you.
+                        </p>
+
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`flex-shrink-0 w-12 h-12 ${themes[currentTheme].main.card} rounded-lg flex items-center justify-center border ${themes[currentTheme].main.border}`}
+                            >
+                              <Mail
+                                className={`w-6 h-6 ${themes[currentTheme].main.accentText}`}
+                              />
+                            </div>
+                            <div>
+                              <p
+                                className={`font-semibold ${themes[currentTheme].main.text}`}
+                              >
+                                Email
+                              </p>
+                              <a
+                                href="mailto:Michael.Ogunrinde@outlook.com"
+                                className={`${themes[currentTheme].main.accentText} hover:opacity-80 text-base`}
+                              >
+                                Michael.Ogunrinde@outlook.com
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`flex-shrink-0 w-12 h-12 ${themes[currentTheme].main.card} rounded-lg flex items-center justify-center border ${themes[currentTheme].main.border}`}
+                            >
+                              <Linkedin
+                                className={`w-6 h-6 ${themes[currentTheme].main.accentText}`}
+                              />
+                            </div>
+                            <div>
+                              <p
+                                className={`font-semibold ${themes[currentTheme].main.text}`}
+                              >
+                                LinkedIn
+                              </p>
+                              <a
+                                href="https://www.linkedin.com/in/michael-ayomide-ogunrinde/"
+                                className={`${themes[currentTheme].main.accentText} hover:opacity-80 text-base`}
+                              >
+                                linkedin.com/in/michael-ayomide-ogunrinde/
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`flex-shrink-0 w-12 h-12 ${themes[currentTheme].main.card} rounded-lg flex items-center justify-center border ${themes[currentTheme].main.border}`}
+                            >
+                              <MapPin
+                                className={`w-6 h-6 ${themes[currentTheme].main.accentText}`}
+                              />
+                            </div>
+                            <div>
+                              <p
+                                className={`font-semibold ${themes[currentTheme].main.text}`}
+                              >
+                                Location
+                              </p>
+                              <p
+                                className={`${themes[currentTheme].main.textMuted} text-base`}
+                              >
+                                Sheffield, UK
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className={`${themes[currentTheme].main.card} p-8 rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border}`}
+                      >
+                        <form className="space-y-6" onSubmit={handleContactSubmit}>
+                          <div>
+                            <label
+                              htmlFor="name"
+                              className={`block text-sm font-medium ${themes[currentTheme].main.text} mb-2`}
+                            >
+                              Name
+                            </label>
+                            <input
+                              type="text"
+                              id="name"
+                              name="name"
+                              value={formName}
+                              onChange={(e) => setFormName(e.target.value)}
+                              className={`w-full px-4 py-3 border ${themes[currentTheme].main.border} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${themes[currentTheme].main.card} ${themes[currentTheme].main.text}`}
+                              placeholder="Your name"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="email"
+                              className={`block text-sm font-medium ${themes[currentTheme].main.text} mb-2`}
+                            >
+                              Email
+                            </label>
+                            <input
+                              type="email"
+                              id="email"
+                              name="email"
+                              value={formEmail}
+                              onChange={(e) => setFormEmail(e.target.value)}
+                              className={`w-full px-4 py-3 border ${themes[currentTheme].main.border} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${themes[currentTheme].main.card} ${themes[currentTheme].main.text}`}
+                              placeholder="your.email@example.com"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="message"
+                              className={`block text-sm font-medium ${themes[currentTheme].main.text} mb-2`}
+                            >
+                              Message
+                            </label>
+                            <textarea
+                              id="message"
+                              name="message"
+                              rows={5}
+                              value={formMessage}
+                              onChange={(e) => setFormMessage(e.target.value)}
+                              className={`w-full px-4 py-3 border ${themes[currentTheme].main.border} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 resize-none ${themes[currentTheme].main.card} ${themes[currentTheme].main.text}`}
+                              placeholder="Tell me about your project or opportunity..."
+                              required
+                            ></textarea>
+                          </div>
+
+                          {formError && (
+                            <div className="text-red-600 text-sm">
+                              {formError}
+                            </div>
+                          )}
+                          {formSuccess && (
+                            <div className="text-green-600 text-sm">
+                              {formSuccess}
+                            </div>
+                          )}
+
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={`w-full px-6 py-3 bg-gradient-to-r ${themes[currentTheme].main.button} text-white font-medium rounded-lg transition-colors duration-300 inline-flex items-center justify-center gap-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+                          >
+                            <ArrowRight className={`w-5 h-5 ${isSubmitting ? "animate-pulse" : ""}`} />
+                            {isSubmitting ? "Sending..." : "Send Message"}
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Footer */}
+              <footer
+                className={`py-12 ${currentTheme === "dark" ? "bg-black" : "bg-gray-900"
+                  } text-white relative z-10`}
               >
-                <Icon className="w-5 h-5 group-hover:text-blue-400 transition-colors duration-300" />
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t border-gray-800 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 text-center text-gray-400 text-sm">
-          <p>
-            © 2025 Michael Ogunrinde. Built with React, TypeScript, and Tailwind
-            CSS.
-          </p>
-          <p className="mt-2 text-xs">
-            Background animations powered by intelligent particle systems
-          </p>
-        </div>
-      </footer>
-
-      {/* Scroll Progress Indicator */}
-      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
-        <div className="relative w-1 h-32 bg-gray-800 rounded-full overflow-hidden">
-          <div
-            className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-blue-500 to-cyan-500 rounded-full transition-all duration-300"
-            style={{
-              height: `${Math.min(
-                100,
-                (scrollY / (document.body.scrollHeight - window.innerHeight)) *
-                  100
-              )}%`,
-            }}
-          />
-        </div>
+                <div className="max-w-6xl mx-auto px-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold mb-4">
+                      Michael Ogunrinde
+                    </div>
+                    <p className="text-gray-400 mb-6">
+                      Computer Science Graduate & AI Researcher
+                    </p>
+                    <div className="flex justify-center gap-6 mb-8">
+                      <a
+                        href="https://github.com/MichaelOguns?tab=repositories"
+                        className="text-gray-400 hover:text-white transition-colors duration-300"
+                        aria-label="GitHub"
+                      >
+                        <Github className="w-6 h-6" />
+                      </a>
+                      <a
+                        href="https://www.linkedin.com/in/michael-ayomide-ogunrinde/"
+                        className="text-gray-400 hover:text-white transition-colors duration-300"
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="w-6 h-6" />
+                      </a>
+                      <a
+                        href="mailto:Michael.Ogunrinde@outlook.com"
+                        className="text-gray-400 hover:text-white transition-colors duration-300"
+                        aria-label="Email"
+                      >
+                        <Mail className="w-6 h-6" />
+                      </a>
+                    </div>
+                    <div className="border-t border-gray-800 pt-8">
+                      <p className="text-gray-400 text-sm">
+                        © 2025 Michael Ogunrinde. All rights reserved.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </footer>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-
-      {/* Back to Top Button */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-8 right-8 p-4 bg-blue-500 hover:bg-blue-600 rounded-lg shadow-lg transition-all duration-300 z-40 ${
-          scrollY > 300
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-10 pointer-events-none"
-        }`}
-      >
-        <ChevronDown className="w-5 h-5 transform rotate-180" />a
-      </button>
     </div>
   );
 }
 
-export default App;
+export default ProfessionalApp;

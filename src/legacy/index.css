@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom 3D and animation styles */
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.animate-spin-slow {
+  animation: spin 20s linear infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.rotateY-0 {
+  transform: rotateY(0deg);
+}
+.rotateY-90 {
+  transform: rotateY(90deg);
+}
+.rotateY-180 {
+  transform: rotateY(180deg);
+}
+.rotateY-270 {
+  transform: rotateY(270deg);
+}
+.rotateX-90 {
+  transform: rotateX(90deg);
+}
+.translate-z-32 {
+  transform: translateZ(8rem);
+}
+
+.theme-dark {
+  --bg-main: #0a0a14;
+  --bg-section: #181824;
+  --text-main: #fff;
+  --text-muted: #a1a1aa;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+}
+
+.theme-light {
+  --bg-main: #f8fafc;
+  --bg-section: #e5e7eb;
+  --text-main: #181824;
+  --text-muted: #4b5563;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+}
+
+body,
+.bg-main {
+  background: var(--bg-main);
+}
+.bg-section {
+  background: var(--bg-section);
+}
+.text-main {
+  color: var(--text-main);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
