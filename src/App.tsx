@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import {
   ChevronDown,
   Github,
@@ -21,6 +22,8 @@ import {
   Database,
   Terminal,
   ArrowRight,
+  Palette,
+  X,
 } from "lucide-react";
 
 // Completely self-contained loading typewriter with button
@@ -927,6 +930,22 @@ function ProfessionalApp() {
   const [animationPhase, setAnimationPhase] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showMainContent, setShowMainContent] = useState(false);
+  const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
+
+  // Close theme selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isThemeSelectorOpen && !target.closest('[data-theme-selector]')) {
+        setIsThemeSelectorOpen(false);
+      }
+    };
+
+    if (isThemeSelectorOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isThemeSelectorOpen]);
 
   const getCookie = (name: string) => {
     const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
@@ -1175,21 +1194,74 @@ function ProfessionalApp() {
             >
               <ProfessionalBackground />
 
-              {/* Theme Selector */}
-              <div className="fixed top-6 right-6 z-[60]">
-                <select
-                  value={currentTheme}
-                  onChange={(e) =>
-                    setCurrentTheme(e.target.value as keyof typeof themes)
-                  }
-                  className={`px-4 py-2 rounded-lg ${themes[currentTheme].main.card} ${themes[currentTheme].main.text} border ${themes[currentTheme].main.border} focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg backdrop-blur-sm`}
+              {/* Mobile-Friendly Theme Selector */}
+              <div className="fixed top-6 left-6 z-[60]" data-theme-selector>
+                {/* Theme Toggle Button */}
+                <motion.button
+                  onClick={() => setIsThemeSelectorOpen(!isThemeSelectorOpen)}
+                  className={`p-3 rounded-full ${themes[currentTheme].main.card} ${themes[currentTheme].main.text} border ${themes[currentTheme].main.border} shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {Object.entries(themes).map(([key, theme]) => (
-                    <option key={key} value={key}>
-                      {theme.name}
-                    </option>
-                  ))}
-                </select>
+                  <Palette className="w-5 h-5" />
+                </motion.button>
+
+                {/* Theme Palette Panel */}
+                <AnimatePresence>
+                  {isThemeSelectorOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -20, scale: 0.9 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className={`absolute top-16 left-0 ${themes[currentTheme].main.card} rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} p-4 backdrop-blur-sm min-w-[200px] max-w-[280px] sm:max-w-[320px]`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className={`text-sm font-semibold ${themes[currentTheme].main.text}`}>
+                          Choose Theme
+                        </h3>
+                        <button
+                          onClick={() => setIsThemeSelectorOpen(false)}
+                          className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${themes[currentTheme].main.textMuted}`}
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.entries(themes).map(([key, theme]) => (
+                          <motion.button
+                            key={key}
+                            onClick={() => {
+                              setCurrentTheme(key as keyof typeof themes);
+                              setIsThemeSelectorOpen(false);
+                            }}
+                            className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${currentTheme === key
+                                ? `border-blue-500 ${themes[currentTheme].main.card} shadow-md`
+                                : `${themes[currentTheme].main.border} ${themes[currentTheme].main.cardHover}`
+                              }`}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <div
+                                className={`w-4 h-4 rounded-full ${key === "blue" ? "bg-gradient-to-r from-blue-500 to-indigo-600" :
+                                    key === "emerald" ? "bg-gradient-to-r from-emerald-500 to-teal-600" :
+                                      key === "sunset" ? "bg-gradient-to-r from-orange-500 to-red-600" :
+                                        key === "purple" ? "bg-gradient-to-r from-purple-500 to-indigo-600" :
+                                          "bg-gradient-to-r from-gray-500 to-slate-600"
+                                  }`}
+                              />
+                              <span className={`text-xs font-medium ${themes[currentTheme].main.text}`}>
+                                {theme.name}
+                              </span>
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Modern Navigation */}
@@ -2219,6 +2291,7 @@ function ProfessionalApp() {
           )}
         </AnimatePresence>
       </div>
+      <SpeedInsights />
     </div>
   );
 }
