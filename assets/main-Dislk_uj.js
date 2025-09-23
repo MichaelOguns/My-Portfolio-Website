@@ -1,4 +1,4 @@
-import{c as e,j as s,r as t,P as r,S as o}from"./index-yrfnlSke.js";e(document.getElementById("root")).render(s.jsxs(t.StrictMode,{children:[s.jsx(r,{}),s.jsx(o,{})]}));
+import{c as r,j as e,r as t,P as o}from"./index-yrfnlSke.js";r(document.getElementById("root")).render(e.jsx(t.StrictMode,{children:e.jsx(o,{})}));
 // Helper function to create the theme selector
 const createThemeSelector = () => {
   const themeSelector = document.getElementById("theme-selector");
@@ -48,3 +48,4 @@ const createThemeSelector = () => {
 
 // Create and append the theme selector after the page has loaded
 window.addEventListener('load', createThemeSelector);
+import{c as r,j as e,r as t,P as o}from"./index-BWxHwqxv.js";r(document.getElementById("root")).render(e.jsx(t.StrictMode,{children:e.jsx(o,{})}));
