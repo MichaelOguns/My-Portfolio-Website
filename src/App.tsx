@@ -50,7 +50,7 @@ const LoadingTypewriter: React.FC<{
         setDisplayText((prev) => ({ ...prev, name1: prev.name1 + char }));
       }),
       // Pause after "Michael"
-      () => { },
+      () => {},
       // Type "Ogunrinde" (9 characters)
       ...Array.from("Ogunrinde").map((char) => () => {
         setDisplayText((prev) => ({ ...prev, name2: prev.name2 + char }));
@@ -936,38 +936,45 @@ function ProfessionalApp() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (isThemeSelectorOpen && !target.closest('[data-theme-selector]')) {
+      if (isThemeSelectorOpen && !target.closest("[data-theme-selector]")) {
         setIsThemeSelectorOpen(false);
       }
     };
 
     if (isThemeSelectorOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isThemeSelectorOpen]);
 
   const getCookie = (name: string) => {
-    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    const match = document.cookie.match(
+      new RegExp("(^| )" + name + "=([^;]+)")
+    );
     return match ? decodeURIComponent(match[2]) : null;
   };
   const setCookie = (name: string, value: string, days = 365) => {
-    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    const expires = new Date(
+      Date.now() + days * 24 * 60 * 60 * 1000
+    ).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(
+      value
+    )}; expires=${expires}; path=/; SameSite=Lax`;
   };
 
   const [currentTheme, setCurrentTheme] = useState<keyof typeof themes>(() => {
     try {
       const saved = getCookie("portfolio_theme");
       if (saved && saved in themes) return saved as keyof typeof themes;
-    } catch { }
+    } catch {}
     return "blue";
   });
 
   useEffect(() => {
     try {
       setCookie("portfolio_theme", currentTheme);
-    } catch { }
+    } catch {}
   }, [currentTheme]);
 
   // Contact form state
@@ -1000,13 +1007,23 @@ function ProfessionalApp() {
   // Keep navigation highlight via scroll without storing scrollY
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["hero", "about", "experience", "skills", "projects", "contact"];
+      const sections = [
+        "hero",
+        "about",
+        "experience",
+        "skills",
+        "projects",
+        "contact",
+      ];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
           const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+          if (
+            scrollPosition >= offsetTop &&
+            scrollPosition < offsetTop + offsetHeight
+          ) {
             setActiveSection(section);
             break;
           }
@@ -1025,15 +1042,15 @@ function ProfessionalApp() {
       animate={
         isTransitioning
           ? {
-            opacity: 0,
-            scale: 0.95,
-            y: -50,
-          }
+              opacity: 0,
+              scale: 0.95,
+              y: -50,
+            }
           : {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-          }
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }
       }
       transition={{
         duration: 0.8,
@@ -1070,13 +1087,13 @@ function ProfessionalApp() {
           animate={
             animationPhase >= 1
               ? {
-                opacity: 1,
-                y: 0,
-              }
+                  opacity: 1,
+                  y: 0,
+                }
               : {
-                opacity: 0,
-                y: 20,
-              }
+                  opacity: 0,
+                  y: 20,
+                }
           }
           transition={{ duration: 1, ease: "easeOut" }}
         >
@@ -1117,7 +1134,8 @@ function ProfessionalApp() {
   );
 
   // Validate email
-  const isValidEmail = (email: string) => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
+  const isValidEmail = (email: string) =>
+    /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
 
   // Handle contact form submit
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -1136,12 +1154,19 @@ function ProfessionalApp() {
 
     setIsSubmitting(true);
     try {
-      const endpoint = (import.meta as any).env?.VITE_FORMSPREE_ENDPOINT || (import.meta as any).env?.VITE_FORM_ENDPOINT || "";
+      const endpoint =
+        (import.meta as any).env?.VITE_FORMSPREE_ENDPOINT ||
+        (import.meta as any).env?.VITE_FORM_ENDPOINT ||
+        "";
       if (endpoint) {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: formName, email: formEmail, message: formMessage }),
+          body: JSON.stringify({
+            name: formName,
+            email: formEmail,
+            message: formMessage,
+          }),
         });
         if (!res.ok) throw new Error("Failed to send message");
         setFormSuccess("Thanks! Your message has been sent.");
@@ -1150,8 +1175,12 @@ function ProfessionalApp() {
         setFormMessage("");
       } else {
         // Fallback to mailto
-        const subject = encodeURIComponent(`Portfolio Contact from ${formName}`);
-        const body = encodeURIComponent(`Name: ${formName}\nEmail: ${formEmail}\n\n${formMessage}`);
+        const subject = encodeURIComponent(
+          `Portfolio Contact from ${formName}`
+        );
+        const body = encodeURIComponent(
+          `Name: ${formName}\nEmail: ${formEmail}\n\n${formMessage}`
+        );
         window.location.href = `mailto:Michael.Ogunrinde@outlook.com?subject=${subject}&body=${body}`;
         setFormSuccess("Opening your email client...");
       }
@@ -1195,40 +1224,50 @@ function ProfessionalApp() {
               <ProfessionalBackground />
 
               {/* Mobile-Friendly Theme Selector */}
-              <div className="fixed top-6 left-6 z-[60]" data-theme-selector>
+              <div
+                className="fixed bottom-6 right-6 z-[60]"
+                data-theme-selector
+              >
                 {/* Theme Toggle Button */}
                 <motion.button
                   onClick={() => setIsThemeSelectorOpen(!isThemeSelectorOpen)}
-                  className={`p-3 rounded-full ${themes[currentTheme].main.card} ${themes[currentTheme].main.text} border ${themes[currentTheme].main.border} shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  className={`p-3 rounded-full bg-gradient-to-r ${
+                    themes[currentTheme].main.button
+                  } text-white border ${
+                    themes[currentTheme].main.border
+                  } shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-${themes[
+                    currentTheme
+                  ].main.accentText.replace("text-", "")}`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Palette className="w-5 h-5" />
-                </motion.button>
-
+                </motion.button>{" "}
                 {/* Theme Palette Panel */}
                 <AnimatePresence>
                   {isThemeSelectorOpen && (
                     <motion.div
-                      initial={{ opacity: 0, x: -20, scale: 0.9 }}
-                      animate={{ opacity: 1, x: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -20, scale: 0.9 }}
+                      initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -20, scale: 0.9 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
-                      className={`absolute top-16 left-0 ${themes[currentTheme].main.card} rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} p-4 backdrop-blur-sm min-w-[200px] max-w-[280px] sm:max-w-[320px]`}
+                      className={`absolute bottom-16 right-0 bg-gradient-to-br ${themes[currentTheme].intro.background} rounded-xl shadow-lg border ${themes[currentTheme].intro.borders} p-3 sm:p-4 backdrop-blur-md w-auto sm:min-w-[200px] sm:max-w-[320px]`}
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className={`text-sm font-semibold ${themes[currentTheme].main.text}`}>
+                        <h3
+                          className={`text-sm font-semibold ${themes[currentTheme].intro.text} hidden sm:block bg-gradient-to-r bg-clip-text text-transparent`}
+                        >
                           Choose Theme
                         </h3>
                         <button
                           onClick={() => setIsThemeSelectorOpen(false)}
-                          className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${themes[currentTheme].main.textMuted}`}
+                          className={`p-1 rounded-full hover:bg-white/10 transition-colors ${themes[currentTheme].intro.accent} ml-auto`}
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="flex sm:hidden flex-col gap-2 items-center">
                         {Object.entries(themes).map(([key, theme]) => (
                           <motion.button
                             key={key}
@@ -1236,23 +1275,68 @@ function ProfessionalApp() {
                               setCurrentTheme(key as keyof typeof themes);
                               setIsThemeSelectorOpen(false);
                             }}
-                            className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${currentTheme === key
+                            className={`w-8 h-8 rounded-full transition-all duration-200 border-2 ${
+                              currentTheme === key
+                                ? "border-blue-500 shadow-md"
+                                : `border-transparent hover:border-${themes[
+                                    currentTheme
+                                  ].main.accentText.replace("text-", "")}/50`
+                            }`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            title={theme.name}
+                          >
+                            <div
+                              className={`w-full h-full rounded-full ${
+                                key === "blue"
+                                  ? "bg-gradient-to-r from-blue-500 to-indigo-600"
+                                  : key === "emerald"
+                                  ? "bg-gradient-to-r from-emerald-500 to-teal-600"
+                                  : key === "sunset"
+                                  ? "bg-gradient-to-r from-orange-500 to-red-600"
+                                  : key === "purple"
+                                  ? "bg-gradient-to-r from-purple-500 to-indigo-600"
+                                  : "bg-gradient-to-r from-gray-500 to-slate-600"
+                              }`}
+                            />
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Desktop layout with names */}
+                      <div className="hidden sm:grid grid-cols-2 gap-2">
+                        {Object.entries(themes).map(([key, theme]) => (
+                          <motion.button
+                            key={key}
+                            onClick={() => {
+                              setCurrentTheme(key as keyof typeof themes);
+                              setIsThemeSelectorOpen(false);
+                            }}
+                            className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
+                              currentTheme === key
                                 ? `border-blue-500 ${themes[currentTheme].main.card} shadow-md`
                                 : `${themes[currentTheme].main.border} ${themes[currentTheme].main.cardHover}`
-                              }`}
+                            }`}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           >
                             <div className="flex items-center gap-2 mb-1">
                               <div
-                                className={`w-4 h-4 rounded-full ${key === "blue" ? "bg-gradient-to-r from-blue-500 to-indigo-600" :
-                                    key === "emerald" ? "bg-gradient-to-r from-emerald-500 to-teal-600" :
-                                      key === "sunset" ? "bg-gradient-to-r from-orange-500 to-red-600" :
-                                        key === "purple" ? "bg-gradient-to-r from-purple-500 to-indigo-600" :
-                                          "bg-gradient-to-r from-gray-500 to-slate-600"
-                                  }`}
+                                className={`w-4 h-4 rounded-full ${
+                                  key === "blue"
+                                    ? "bg-gradient-to-r from-blue-500 to-indigo-600"
+                                    : key === "emerald"
+                                    ? "bg-gradient-to-r from-emerald-500 to-teal-600"
+                                    : key === "sunset"
+                                    ? "bg-gradient-to-r from-orange-500 to-red-600"
+                                    : key === "purple"
+                                    ? "bg-gradient-to-r from-purple-500 to-indigo-600"
+                                    : "bg-gradient-to-r from-gray-500 to-slate-600"
+                                }`}
                               />
-                              <span className={`text-xs font-medium ${themes[currentTheme].main.text}`}>
+                              <span
+                                className={`text-xs font-medium ${themes[currentTheme].main.text}`}
+                              >
                                 {theme.name}
                               </span>
                             </div>
@@ -1324,28 +1408,30 @@ function ProfessionalApp() {
 
                 {/* Animated gradient orbs */}
                 <div
-                  className={`absolute top-1/4 left-1/4 w-80 h-80 rounded-full blur-3xl animate-pulse ${currentTheme === "blue"
-                    ? "bg-gradient-to-r from-blue-400/10 to-indigo-400/10"
-                    : currentTheme === "emerald"
+                  className={`absolute top-1/4 left-1/4 w-80 h-80 rounded-full blur-3xl animate-pulse ${
+                    currentTheme === "blue"
+                      ? "bg-gradient-to-r from-blue-400/10 to-indigo-400/10"
+                      : currentTheme === "emerald"
                       ? "bg-gradient-to-r from-emerald-400/10 to-teal-400/10"
                       : currentTheme === "sunset"
-                        ? "bg-gradient-to-r from-orange-400/10 to-red-400/10"
-                        : currentTheme === "purple"
-                          ? "bg-gradient-to-r from-purple-400/10 to-indigo-400/10"
-                          : "bg-gradient-to-r from-gray-400/10 to-slate-400/10"
-                    }`}
+                      ? "bg-gradient-to-r from-orange-400/10 to-red-400/10"
+                      : currentTheme === "purple"
+                      ? "bg-gradient-to-r from-purple-400/10 to-indigo-400/10"
+                      : "bg-gradient-to-r from-gray-400/10 to-slate-400/10"
+                  }`}
                 ></div>
                 <div
-                  className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl animate-pulse ${currentTheme === "blue"
-                    ? "bg-gradient-to-r from-indigo-400/10 to-blue-400/10"
-                    : currentTheme === "emerald"
+                  className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl animate-pulse ${
+                    currentTheme === "blue"
+                      ? "bg-gradient-to-r from-indigo-400/10 to-blue-400/10"
+                      : currentTheme === "emerald"
                       ? "bg-gradient-to-r from-teal-400/10 to-cyan-400/10"
                       : currentTheme === "sunset"
-                        ? "bg-gradient-to-r from-red-400/10 to-pink-400/10"
-                        : currentTheme === "purple"
-                          ? "bg-gradient-to-r from-indigo-400/10 to-blue-400/10"
-                          : "bg-gradient-to-r from-slate-400/10 to-gray-400/10"
-                    }`}
+                      ? "bg-gradient-to-r from-red-400/10 to-pink-400/10"
+                      : currentTheme === "purple"
+                      ? "bg-gradient-to-r from-indigo-400/10 to-blue-400/10"
+                      : "bg-gradient-to-r from-slate-400/10 to-gray-400/10"
+                  }`}
                   style={{ animationDelay: "2s" }}
                 ></div>
 
@@ -1374,7 +1460,9 @@ function ProfessionalApp() {
                         ></div>
                         <div className="absolute inset-2 rounded-full overflow-hidden bg-white shadow-2xl">
                           <img
-                            src={`${import.meta.env.BASE_URL}images/image1.jpeg`}
+                            src={`${
+                              import.meta.env.BASE_URL
+                            }images/image1.jpeg`}
                             alt="Michael Ogunrinde"
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -1436,14 +1524,19 @@ function ProfessionalApp() {
 
                     {/* Modern CTA buttons */}
                     <div
-                      className={`flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 transition-all duration-1000 delay-1200 ${isLoading
-                        ? "opacity-0 transform translate-y-12"
-                        : "opacity-100 transform translate-y-0"
-                        }`}
+                      className={`flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 transition-all duration-1000 delay-1200 ${
+                        isLoading
+                          ? "opacity-0 transform translate-y-12"
+                          : "opacity-100 transform translate-y-0"
+                      }`}
                     >
                       <a
                         href="#contact"
-                        className={`group px-8 py-4 bg-gradient-to-r ${themes[currentTheme].main.button} text-white rounded-full font-medium transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[currentTheme].main.accentText.replace("text-", "")}`}
+                        className={`group px-8 py-4 bg-gradient-to-r ${
+                          themes[currentTheme].main.button
+                        } text-white rounded-full font-medium transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[
+                          currentTheme
+                        ].main.accentText.replace("text-", "")}`}
                       >
                         <Mail className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                         Let's Connect
@@ -1451,7 +1544,19 @@ function ProfessionalApp() {
                       </a>
                       <a
                         href="#experience"
-                        className={`group px-8 py-4 ${themes[currentTheme].main.card}/80 backdrop-blur-sm border ${themes[currentTheme].main.border} hover:border-${themes[currentTheme].main.accentText.replace("text-", "")} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} rounded-full font-medium transition-all duration-300 inline-flex items-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[currentTheme].main.accentText.replace("text-", "")}`}
+                        className={`group px-8 py-4 ${
+                          themes[currentTheme].main.card
+                        }/80 backdrop-blur-sm border ${
+                          themes[currentTheme].main.border
+                        } hover:border-${themes[
+                          currentTheme
+                        ].main.accentText.replace("text-", "")} ${
+                          themes[currentTheme].main.textMuted
+                        } hover:${
+                          themes[currentTheme].main.accentText
+                        } rounded-full font-medium transition-all duration-300 inline-flex items-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[
+                          currentTheme
+                        ].main.accentText.replace("text-", "")}`}
                       >
                         <Code className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         Explore My Work
@@ -1460,13 +1565,16 @@ function ProfessionalApp() {
 
                     {/* Modern stats */}
                     <div
-                      className={`grid grid-cols-3 gap-8 max-w-md mx-auto mb-12 transition-all duration-1000 delay-1400 ${isLoading
-                        ? "opacity-0 transform translate-y-12"
-                        : "opacity-100 transform translate-y-0"
-                        }`}
+                      className={`grid grid-cols-3 gap-8 max-w-md mx-auto mb-12 transition-all duration-1000 delay-1400 ${
+                        isLoading
+                          ? "opacity-0 transform translate-y-12"
+                          : "opacity-100 transform translate-y-0"
+                      }`}
                     >
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}>
+                        <div
+                          className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}
+                        >
                           3+
                         </div>
                         <div className="text-sm text-gray-500">
@@ -1474,7 +1582,9 @@ function ProfessionalApp() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}>
+                        <div
+                          className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}
+                        >
                           6+
                         </div>
                         <div className="text-sm text-gray-500">
@@ -1482,7 +1592,9 @@ function ProfessionalApp() {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}>
+                        <div
+                          className={`text-2xl font-bold ${themes[currentTheme].main.accentText} mb-1`}
+                        >
                           1st
                         </div>
                         <div className="text-sm text-gray-500">
@@ -1492,10 +1604,11 @@ function ProfessionalApp() {
                     </div>
 
                     <div
-                      className={`flex justify-center gap-6 transition-all duration-1000 delay-1600 ${isLoading
-                        ? "opacity-0 transform translate-y-12"
-                        : "opacity-100 transform translate-y-0"
-                        }`}
+                      className={`flex justify-center gap-6 transition-all duration-1000 delay-1600 ${
+                        isLoading
+                          ? "opacity-0 transform translate-y-12"
+                          : "opacity-100 transform translate-y-0"
+                      }`}
                     >
                       <a
                         href="https://github.com/MichaelOguns?tab=repositories"
@@ -1573,10 +1686,10 @@ function ProfessionalApp() {
                           As a recent Computer Science graduate with First Class
                           Honours, I bring a unique blend of academic excellence
                           and practical experience. My internship at Google
-                          DeepMind provided invaluable insights into
-                          advanced AI research, while my personal projects
-                          demonstrate my ability to translate complex concepts
-                          into real-world solutions.
+                          DeepMind provided invaluable insights into advanced AI
+                          research, while my personal projects demonstrate my
+                          ability to translate complex concepts into real-world
+                          solutions.
                         </p>
                         <p className="text-gray-600 mb-6 text-base leading-relaxed">
                           I specialised in machine learning, full-stack
@@ -1627,10 +1740,23 @@ function ProfessionalApp() {
                         {achievements.map((achievement, _) => (
                           <div
                             key={_}
-                            className={`flex items-start gap-4 p-4 ${themes[currentTheme].main.card} rounded-lg ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} hover:border-${themes[currentTheme].main.accentText.replace("text-", "")} transition-colors duration-300`}
+                            className={`flex items-start gap-4 p-4 ${
+                              themes[currentTheme].main.card
+                            } rounded-lg ${
+                              themes[currentTheme].main.shadow
+                            } border ${
+                              themes[currentTheme].main.border
+                            } hover:border-${themes[
+                              currentTheme
+                            ].main.accentText.replace(
+                              "text-",
+                              ""
+                            )} transition-colors duration-300`}
                           >
                             <div className="flex-shrink-0">
-                              <Award className={`w-6 h-6 ${themes[currentTheme].main.accentText}`} />
+                              <Award
+                                className={`w-6 h-6 ${themes[currentTheme].main.accentText}`}
+                              />
                             </div>
                             <div>
                               <h4
@@ -1698,24 +1824,36 @@ function ProfessionalApp() {
                         <button
                           key={category.key}
                           onClick={() => setActiveCategory(category.key)}
-                          className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${activeCategory === category.key
-                            ? `bg-gradient-to-r ${themes[currentTheme].main.button} text-white shadow-md`
-                            : `${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} ${themes[currentTheme].main.cardHover} hover:${themes[currentTheme].main.accentText} border ${themes[currentTheme].main.border} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[currentTheme].main.accentText.replace("text-", "")}`
-                            }`}
+                          className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
+                            activeCategory === category.key
+                              ? `bg-gradient-to-r ${themes[currentTheme].main.button} text-white shadow-md`
+                              : `${themes[currentTheme].main.card} ${
+                                  themes[currentTheme].main.textMuted
+                                } ${
+                                  themes[currentTheme].main.cardHover
+                                } hover:${
+                                  themes[currentTheme].main.accentText
+                                } border ${
+                                  themes[currentTheme].main.border
+                                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${themes[
+                                  currentTheme
+                                ].main.accentText.replace("text-", "")}`
+                          }`}
                         >
                           <span>{category.icon}</span>
                           <span>{category.label}</span>
                           <span
-                            className={`text-xs px-2 py-1 rounded-full ${activeCategory === category.key
-                              ? "bg-white/20 text-white"
-                              : `${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} border ${themes[currentTheme].main.border}`
-                              }`}
+                            className={`text-xs px-2 py-1 rounded-full ${
+                              activeCategory === category.key
+                                ? "bg-white/20 text-white"
+                                : `${themes[currentTheme].main.card} ${themes[currentTheme].main.textMuted} border ${themes[currentTheme].main.border}`
+                            }`}
                           >
                             {category.key === "all"
                               ? experiences.length
                               : experiences.filter(
-                                (exp) => exp.category === category.key
-                              ).length}
+                                  (exp) => exp.category === category.key
+                                ).length}
                           </span>
                         </button>
                       ))}
@@ -1732,7 +1870,27 @@ function ProfessionalApp() {
                         .map((experience, _) => (
                           <div
                             key={experience.id}
-                            className={`${themes[currentTheme].main.card} rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-${themes[currentTheme].main.accentText.replace("text-", "")} focus-within:ring-2 focus-within:ring-${themes[currentTheme].main.accentText.replace("text-", "")} focus-within:ring-offset-2 focus-within:ring-offset-${themes[currentTheme].main.background.split(' ')[0].split('-')[2]}`}
+                            className={`${
+                              themes[currentTheme].main.card
+                            } rounded-xl ${
+                              themes[currentTheme].main.shadow
+                            } border ${
+                              themes[currentTheme].main.border
+                            } overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-${themes[
+                              currentTheme
+                            ].main.accentText.replace(
+                              "text-",
+                              ""
+                            )} focus-within:ring-2 focus-within:ring-${themes[
+                              currentTheme
+                            ].main.accentText.replace(
+                              "text-",
+                              ""
+                            )} focus-within:ring-offset-2 focus-within:ring-offset-${
+                              themes[currentTheme].main.background
+                                .split(" ")[0]
+                                .split("-")[2]
+                            }`}
                             data-animate
                             id={`experience-${experience.id}`}
                           >
@@ -1801,15 +1959,16 @@ function ProfessionalApp() {
                                         )}
                                       </h3>
                                       <span
-                                        className={`px-2 py-1 text-xs font-medium rounded-full ${experience.category === "experience"
-                                          ? "bg-green-100 text-green-700"
-                                          : experience.category ===
-                                            "education"
+                                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                          experience.category === "experience"
+                                            ? "bg-green-100 text-green-700"
+                                            : experience.category ===
+                                              "education"
                                             ? "bg-purple-100 text-purple-700"
                                             : experience.category === "project"
-                                              ? "bg-blue-100 text-blue-700"
-                                              : "bg-yellow-100 text-yellow-700"
-                                          }`}
+                                            ? "bg-blue-100 text-blue-700"
+                                            : "bg-yellow-100 text-yellow-700"
+                                        }`}
                                       >
                                         {experience.category
                                           .charAt(0)
@@ -1927,8 +2086,9 @@ function ProfessionalApp() {
                                   )}
                                   {experience.poster && (
                                     <a
-                                      href={`${import.meta.env.BASE_URL
-                                        }posters/${experience.poster}`}
+                                      href={`${
+                                        import.meta.env.BASE_URL
+                                      }posters/${experience.poster}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className={`inline-flex items-center gap-2 px-4 py-2 border ${themes[currentTheme].main.border} hover:${themes[currentTheme].main.accentText} ${themes[currentTheme].main.textMuted} hover:${themes[currentTheme].main.accentText} text-sm font-medium rounded-lg transition-colors duration-300`}
@@ -1972,7 +2132,15 @@ function ProfessionalApp() {
                       {skillCategories.map((category, _) => (
                         <div
                           key={category.category}
-                          className={`${themes[currentTheme].main.card} p-6 rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border} transition-all duration-500 hover:shadow-xl hover:border-${themes[currentTheme].main.accentText.replace("text-", "")}`}
+                          className={`${
+                            themes[currentTheme].main.card
+                          } p-6 rounded-xl ${
+                            themes[currentTheme].main.shadow
+                          } border ${
+                            themes[currentTheme].main.border
+                          } transition-all duration-500 hover:shadow-xl hover:border-${themes[
+                            currentTheme
+                          ].main.accentText.replace("text-", "")}`}
                           data-animate
                           id={`skill-category-${_}`}
                           style={{
@@ -2159,7 +2327,10 @@ function ProfessionalApp() {
                       <div
                         className={`${themes[currentTheme].main.card} p-8 rounded-xl ${themes[currentTheme].main.shadow} border ${themes[currentTheme].main.border}`}
                       >
-                        <form className="space-y-6" onSubmit={handleContactSubmit}>
+                        <form
+                          className="space-y-6"
+                          onSubmit={handleContactSubmit}
+                        >
                           <div>
                             <label
                               htmlFor="name"
@@ -2231,9 +2402,19 @@ function ProfessionalApp() {
                           <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full px-6 py-3 bg-gradient-to-r ${themes[currentTheme].main.button} text-white font-medium rounded-lg transition-colors duration-300 inline-flex items-center justify-center gap-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+                            className={`w-full px-6 py-3 bg-gradient-to-r ${
+                              themes[currentTheme].main.button
+                            } text-white font-medium rounded-lg transition-colors duration-300 inline-flex items-center justify-center gap-2 ${
+                              isSubmitting
+                                ? "opacity-70 cursor-not-allowed"
+                                : ""
+                            }`}
                           >
-                            <ArrowRight className={`w-5 h-5 ${isSubmitting ? "animate-pulse" : ""}`} />
+                            <ArrowRight
+                              className={`w-5 h-5 ${
+                                isSubmitting ? "animate-pulse" : ""
+                              }`}
+                            />
                             {isSubmitting ? "Sending..." : "Send Message"}
                           </button>
                         </form>
@@ -2245,8 +2426,9 @@ function ProfessionalApp() {
 
               {/* Footer */}
               <footer
-                className={`py-12 ${currentTheme === "dark" ? "bg-black" : "bg-gray-900"
-                  } text-white relative z-10`}
+                className={`py-12 ${
+                  currentTheme === "dark" ? "bg-black" : "bg-gray-900"
+                } text-white relative z-10`}
               >
                 <div className="max-w-6xl mx-auto px-6">
                   <div className="text-center">
