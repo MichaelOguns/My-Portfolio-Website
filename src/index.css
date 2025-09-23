@@ -496,3 +496,45 @@ select {
     color: #000 !important;
   }
 }
+
+.theme-selector {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  cursor: grab;
+}
+
+.theme-palette {
+  display: none;
+  position: absolute;
+  bottom: 60px; /* Position above the icon */
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-selector.active .theme-palette {
+  display: flex;
+}
+
+.theme-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.theme-option:hover {
+  transform: scale(1.1);
+}
+
+.theme-option.active {
+  border-color: #3b82f6; /* Example active color */
+}
