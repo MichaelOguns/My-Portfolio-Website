@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 import {
   ChevronDown,
   Github,
@@ -2474,6 +2475,7 @@ function ProfessionalApp() {
         </AnimatePresence>
       </div>
       <SpeedInsights />
+      <Analytics />
     </div>
   );
 }
