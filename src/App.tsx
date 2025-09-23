@@ -783,8 +783,8 @@ const achievements = [
     year: "2024",
   },
   {
-    title: "AI Research Publication",
-    description: "Multi-agent systems for personalized learning",
+    title: "AI Research/Project",
+    description: "Multi-agent systems for personalised learning",
     year: "2025",
   },
 ];
