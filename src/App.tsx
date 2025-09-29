@@ -61,7 +61,7 @@ const LoadingTypewriter: React.FC<{
         setDisplayText((prev) => ({ ...prev, showTitle: true }));
       },
       // Type title (33 characters)
-      ...Array.from("AI Engineer & Full-Stack Developer").map((char) => () => {
+      ...Array.from("AI Enthusiast & Full-Stack Developer").map((char) => () => {
         setDisplayText((prev) => ({ ...prev, title: prev.title + char }));
       }),
       // Show button
