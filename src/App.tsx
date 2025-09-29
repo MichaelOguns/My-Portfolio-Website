@@ -61,9 +61,11 @@ const LoadingTypewriter: React.FC<{
         setDisplayText((prev) => ({ ...prev, showTitle: true }));
       },
       // Type title (33 characters)
-      ...Array.from("AI Enthusiast & Full-Stack Developer").map((char) => () => {
-        setDisplayText((prev) => ({ ...prev, title: prev.title + char }));
-      }),
+      ...Array.from("AI Enthusiast & Full-Stack Developer").map(
+        (char) => () => {
+          setDisplayText((prev) => ({ ...prev, title: prev.title + char }));
+        }
+      ),
       // Show button
       () => {
         setDisplayText((prev) => ({
@@ -1389,7 +1391,9 @@ function ProfessionalApp() {
                       )}
                     </div>
                     <a
-                      href={`${import.meta.env.BASE_URL}cv/CV.pdf`}
+                      href={`${
+                        import.meta.env.BASE_URL
+                      }cv/Michael-Ogunrinde-CV.pdf`}
                       download="Michael-Ogunrinde-CV.pdf"
                       className={`px-6 py-3 bg-gradient-to-r ${themes[currentTheme].main.button} text-white rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5`}
                     >
