@@ -548,7 +548,7 @@ const experiences: Project[] = [
       "ipyvolume",
     ],
     image:
-      "https://media.licdn.com/dms/image/v2/D4E22AQGOtVk-C88liw/feedshare-shrink_2048_1536/B4EZWoavlgGwAo-/0/1742287343682?e=1760572800&v=beta&t=thqYMVQF9Su6y_nPznyQeVinzid20y8bAX0AvqdQa4Y",
+      "https://media.licdn.com/dms/image/v2/D4E22AQGOtVk-C88liw/feedshare-shrink_800/B4EZWoavlgGwAg-/0/1742287343184?e=1762992000&v=beta&t=RIh46M8R6C06sgWdBcOMEaMcMdzTxPLsdJMFOBZY7R4",
     article: "https://www.cst.cam.ac.uk/opportunity-great-people-me",
     poster: "3D-Trajectory-Deconfliction.pdf",
     year: "2024",
